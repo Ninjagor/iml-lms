@@ -26,8 +26,14 @@ export default function LayoutHeader({
                 <a href="#">CSW</a> »
                 <a href="#">Introduction to Machine Learning - Fall 2027</a>
                 <span className="user-info">
-                    Signed in as: <strong id="header-username">{user.name}</strong>
-                    &nbsp;({user.role})
+                    {user.role === "auditor" ? (
+                        <>Signed in as <strong id="header-username">Auditor</strong></>
+                    ) : (
+                        <>
+                            Signed in as: <strong id="header-username">{user.name}</strong>
+                            &nbsp;({user.role})
+                        </>
+                    )}
                     &nbsp;<button onClick={handleSignOut} style={{ background: "none", border: "none", color: "#1976d2", cursor: "pointer", textDecoration: "underline" }}>[Sign Out]</button>
                 </span>
             </div>
@@ -47,8 +53,12 @@ export default function LayoutHeader({
                 <Link href="/schedule" className={`${isActive('/schedule') ? "active" : ""}`}>Schedule</Link>
                 <Link href="/lectures" className={`${isActive('/lectures') ? "active" : ""}`}>Lectures & Notes</Link>
                 <Link href="/homework" className={`${isActive('/homework') ? "active" : ""}`}>Homework</Link>
-                <Link href="/quizzes" className={`${isActive('/quizzes') ? "active" : ""}`}>Quizzes & Exams</Link>
-                <Link href="/gradebook" className={`${isActive('/gradebook') ? "active" : ""}`}>Gradebook</Link>
+                {user.role !== "auditor" && (
+                    <>
+                        <Link href="/quizzes" className={`${isActive('/quizzes') ? "active" : ""}`}>Quizzes & Exams</Link>
+                        <Link href="/gradebook" className={`${isActive('/gradebook') ? "active" : ""}`}>Gradebook</Link>
+                    </>
+                )}
                 {isStaff && (
                     <Link href="/users" className={`${isActive('/users') ? "active" : ""}`}>
                         ▶ Users

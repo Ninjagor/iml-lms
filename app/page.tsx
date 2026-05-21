@@ -25,14 +25,14 @@ export default async function Home() {
         status: session.status || "pending"
     };
 
-    if (user.status === "pending") {
+    if (user.role !== "auditor" && user.status === "pending") {
         await destroySession();
         redirect("/login?pending=true");
     }
 
     const isStaff = user.role === "instructor" || user.role === "teacher";
 
-    if (user.status === "denied") {
+    if (user.role !== "auditor" && user.status === "denied") {
         return (
             <div className="screen-container">
                 <h1>Access Denied</h1>

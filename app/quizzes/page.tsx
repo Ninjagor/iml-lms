@@ -2,6 +2,7 @@
 
 import { useAuthStore } from "@/src/store/authStore";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface Quiz {
     id: string;
@@ -34,6 +35,13 @@ interface User {
 
 export default function QuizzesPage() {
     const { user, isLoading, isAuthenticated, checkAuth } = useAuthStore();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!isLoading && user?.role === "auditor") {
+            router.push("/");
+        }
+    }, [user, isLoading, router]);
     const [quizzes, setQuizzes] = useState<Quiz[]>([]);
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);

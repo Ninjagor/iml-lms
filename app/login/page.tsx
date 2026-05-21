@@ -115,6 +115,37 @@ export default function LoginPage() {
                             {isLoading ? "Signing in..." : "Sign In"}
                         </button>
                     </form>
+                    
+                    <div style={{ marginTop: "10px" }}>
+                        <button
+                            onClick={async () => {
+                                setIsLoading(true);
+                                try {
+                                    const response = await fetch("/api/auth/auditor", { method: "POST" });
+                                    if (response.ok) {
+                                        window.location.href = "/";
+                                    } else {
+                                        setError("Failed to sign in as auditor");
+                                    }
+                                } catch (e) {
+                                    setError("An error occurred");
+                                } finally {
+                                    setIsLoading(false);
+                                }
+                            }}
+                            className="btn"
+                            disabled={isLoading}
+                            style={{ width: "100%", cursor: isLoading ? "not-allowed" : "pointer", backgroundColor: "#f8f8f8", color: "#333", border: "1px solid #ccc",
+                                padding: "8px 0px"
+
+
+                            }}
+                            
+                        >
+                            View as Auditor (Read Only)
+                        </button>
+                    </div>
+
                     <hr className="login-divider" />
                     <p className="login-note">
                         New student or instructor? <a href="/signup" style={{ color: "#1976d2" }}>Create an account</a>

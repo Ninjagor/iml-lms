@@ -48,6 +48,7 @@ export default function HomeworkPage() {
     const [editingId, setEditingId] = useState<string | null>(null);
 
     const isStaff = user && (user.role === "instructor" || user.role === "teacher");
+    const isAuditor = user?.role === "auditor";
 
     const getDraft = (homeworkId: string) => submissionDrafts[homeworkId] ?? { materials: [], title: "", url: "" };
 
@@ -376,37 +377,39 @@ export default function HomeworkPage() {
                                                     <div key={i} style={{ marginBottom: "4px" }}>
                                                         <a href={m.url} target="_blank" rel="noreferrer">{m.title}</a>
                                                     </div>
-                                                )) : <span style={{ color: "#666", fontStyle: "italic" }}>No submission yet</span>}
+                                                )) : <span style={{ color: "#666", fontStyle: "italic" }}>{isAuditor ? "Auditor view (read-only)" : "No submission yet"}</span>}
                                             </div>
-                                            <div className="form-section" style={{ margin: 0, padding: "12px 14px" }}>
-                                                <h3 style={{ marginBottom: "10px", fontSize: "13px" }}>➤ Submit or edit your work</h3>
-                                                {draft.materials.length > 0 && (
-                                                    <div style={{ marginBottom: "10px" }}>
-                                                        {draft.materials.map((m, i) => (
-                                                            <div key={i} className="form-row" style={{ alignItems: "center", gap: "6px", marginBottom: "6px" }}>
-                                                                <input type="text" value={m.title} onChange={(e) => updateSubmissionLink(hw.id, i, "title", e.target.value)} placeholder="Link title" style={{ flex: 1, minWidth: "140px" }} />
-                                                                <input type="text" value={m.url} onChange={(e) => updateSubmissionLink(hw.id, i, "url", e.target.value)} placeholder="URL" style={{ flex: 2, minWidth: "180px" }} />
-                                                                <button className="btn btn-sm" style={{ padding: "0 6px" }} onClick={() => removeSubmissionLink(hw.id, i)}>&times;</button>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                )}
-                                                <div className="form-row" style={{ gap: "6px", flexWrap: "wrap" }}>
-                                                    <input type="text" placeholder="Link Title" value={draft.title} onChange={(e) => setDraft(hw.id, { ...draft, title: e.target.value })} style={{ flex: 1, minWidth: "140px" }} />
-                                                    <input type="text" placeholder="URL" value={draft.url} onChange={(e) => setDraft(hw.id, { ...draft, url: e.target.value })} style={{ flex: 2, minWidth: "180px" }} />
-                                                    <button className="btn btn-sm" onClick={() => addSubmissionLink(hw.id)}>Add link</button>
-                                                </div>
-                                                <div style={{ marginTop: "12px", display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                                                    <button className="btn btn-primary btn-sm" onClick={() => submitStudentSubmission(hw.id)}>
-                                                        {studentSubmission ? "Update submission" : "Submit work"}
-                                                    </button>
-                                                    {studentSubmission && (
-                                                        <button className="btn btn-secondary btn-sm" onClick={() => deleteStudentSubmission(studentSubmission.id)}>
-                                                            Delete submission
-                                                        </button>
+                                            {!isAuditor && (
+                                                <div className="form-section" style={{ margin: 0, padding: "12px 14px" }}>
+                                                    <h3 style={{ marginBottom: "10px", fontSize: "13px" }}>➤ Submit or edit your work</h3>
+                                                    {draft.materials.length > 0 && (
+                                                        <div style={{ marginBottom: "10px" }}>
+                                                            {draft.materials.map((m, i) => (
+                                                                <div key={i} className="form-row" style={{ alignItems: "center", gap: "6px", marginBottom: "6px" }}>
+                                                                    <input type="text" value={m.title} onChange={(e) => updateSubmissionLink(hw.id, i, "title", e.target.value)} placeholder="Link title" style={{ flex: 1, minWidth: "140px" }} />
+                                                                    <input type="text" value={m.url} onChange={(e) => updateSubmissionLink(hw.id, i, "url", e.target.value)} placeholder="URL" style={{ flex: 2, minWidth: "180px" }} />
+                                                                    <button className="btn btn-sm" style={{ padding: "0 6px" }} onClick={() => removeSubmissionLink(hw.id, i)}>&times;</button>
+                                                                </div>
+                                                            ))}
+                                                        </div>
                                                     )}
+                                                    <div className="form-row" style={{ gap: "6px", flexWrap: "wrap" }}>
+                                                        <input type="text" placeholder="Link Title" value={draft.title} onChange={(e) => setDraft(hw.id, { ...draft, title: e.target.value })} style={{ flex: 1, minWidth: "140px" }} />
+                                                        <input type="text" placeholder="URL" value={draft.url} onChange={(e) => setDraft(hw.id, { ...draft, url: e.target.value })} style={{ flex: 2, minWidth: "180px" }} />
+                                                        <button className="btn btn-sm" onClick={() => addSubmissionLink(hw.id)}>Add link</button>
+                                                    </div>
+                                                    <div style={{ marginTop: "12px", display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                                                        <button className="btn btn-primary btn-sm" onClick={() => submitStudentSubmission(hw.id)}>
+                                                            {studentSubmission ? "Update submission" : "Submit work"}
+                                                        </button>
+                                                        {studentSubmission && (
+                                                            <button className="btn btn-secondary btn-sm" onClick={() => deleteStudentSubmission(studentSubmission.id)}>
+                                                                Delete submission
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            )}
                                         </td>
                                         <td style={{ verticalAlign: "middle" }}>
                                             {renderStatusLabel(hw, studentSubmission)}
