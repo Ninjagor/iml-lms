@@ -1,0 +1,125 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String    @id
+  name           String    @db.Text
+  email          String    @unique
+  emailVerified  Boolean   @default(false)
+  image          String?   @db.Text
+  password       String?   @db.Text
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  role           String    @default("student")
+  status         String    @default("pending")
+  sessionVersion Int       @default(0)
+  announcements  Announcement[]
+  submissions    Submission[]
+  quizGrades     QuizGrade[]
+
+  @@map("user")
+}
+
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String   @db.Text
+  body      String   @db.LongText
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("announcement")
+}
+
+model Schedule {
+  id        String   @id @default(cuid())
+  date      DateTime
+  day       String
+  topic     String   @db.Text
+  type      String
+  materials Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("schedule")
+}
+
+model Lecture {
+  id        String   @id @default(cuid())
+  title     String   @db.Text
+  topic     String   @db.Text
+  date      DateTime
+  materials Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("lecture")
+}
+
+model Homework {
+  id          String   @id @default(cuid())
+  name        String   @db.Text
+  dueDate     DateTime
+  points      Int      @default(100)
+  description String?  @db.Text
+  materials   Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  submissions Submission[]
+
+  @@map("homework")
+}
+
+model Quiz {
+  id              String      @id @default(cuid())
+  title           String      @db.Text
+  type            String      // In-Class Quiz, Online Quiz, Midterm Exam, Final Exam
+  date            DateTime
+  isPublished     Boolean     @default(false)
+  answerKeyTitle  String?     @db.Text
+  answerKeyUrl    String?     @db.Text
+  points          Int         @default(10)
+  instructions    String?     @db.Text
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  grades          QuizGrade[]
+
+  @@map("quiz")
+}
+
+model QuizGrade {
+  id        String   @id @default(cuid())
+  quizId    String
+  quiz      Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  score     Int
+  maxScore  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([quizId, userId])
+  @@map("quiz_grade")
+}
+
+model Submission {
+  id          String   @id @default(cuid())
+  homeworkId  String
+  homework    Homework @relation(fields: [homeworkId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  materials   Json     // Array of { title: string, url: string }
+  submittedAt DateTime @default(now())
+  grade       Int?
+  
+  @@map("submission")
+}

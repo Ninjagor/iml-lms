@@ -1,0 +1,1890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CS 3140 — Hartwick University</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: Times New Roman, Times, Georgia, serif; font-size: 14px; background: #f5f3ee; color: #111; line-height: 1.5; }
+a { color: #00008b; text-decoration: underline; }
+a:visited { color: #551a8b; }
+a:hover { color: #cc0000; }
+code { font-family: monospace; font-size: 12px; background: #eee; padding: 1px 3px; }
+
+/* ===== LOGIN / SIGNUP SCREENS ===== */
+#screen-login, #screen-signup, #screen-pending {
+  display: none;
+  min-height: 100vh;
+  background: #f5f3ee;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+#screen-login.active, #screen-signup.active, #screen-pending.active { display: flex; }
+
+.login-box {
+  background: #fff;
+  border: 2px solid #8b0000;
+  padding: 0;
+  width: 420px;
+  box-shadow: 3px 3px 0 #ccc;
+}
+.login-box-header {
+  background: #8b0000;
+  color: #fff;
+  padding: 10px 16px;
+  font-size: 15px;
+  font-weight: bold;
+  letter-spacing: 0.02em;
+}
+.login-box-header .uni-small {
+  font-size: 11px;
+  color: #f5c0c0;
+  font-weight: normal;
+  display: block;
+  margin-top: 2px;
+}
+.login-box-body { padding: 22px 24px; }
+.login-box-body p { font-size: 13px; margin-bottom: 14px; color: #444; }
+
+.google-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 14px;
+  background: linear-gradient(to bottom, #f8f8f8, #e8e8e8);
+  border: 1px outset #999;
+  cursor: pointer;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 14px;
+  text-align: left;
+}
+.google-btn:hover { background: linear-gradient(to bottom, #f0f0f0, #d8d8d8); }
+.google-btn:active { border: 1px inset #999; }
+.google-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+.login-divider { border: none; border-top: 1px solid #ccc; margin: 14px 0; }
+.login-note { font-size: 11px; color: #666; font-style: italic; line-height: 1.5; }
+.login-link { font-size: 12px; margin-top: 10px; }
+
+.pending-box {
+  background: #fff;
+  border: 2px solid #8b6000;
+  padding: 0;
+  width: 460px;
+  box-shadow: 3px 3px 0 #ccc;
+}
+.pending-box-header { background: #8b6000; color: #fff; padding: 10px 16px; font-size: 15px; font-weight: bold; }
+.pending-box-body { padding: 22px 24px; font-size: 13px; line-height: 1.6; }
+.pending-box-body .warn { background: #fffbe8; border: 1px solid #d4b000; border-left: 4px solid #d4b000; padding: 8px 12px; margin: 12px 0; }
+
+/* ===== UNIVERSITY HEADER ===== */
+#uni-header { background: #7b0000; color: #fff; padding: 6px 10px; font-size: 11px; letter-spacing: 0.03em; border-bottom: 2px solid #400000; }
+#uni-header a { color: #ffd; text-decoration: underline; }
+#uni-header .user-info { float: right; font-size: 11px; }
+#uni-header .user-info a { color: #fdc; margin-left: 8px; }
+
+#course-banner { background: #8b0000; color: #fff; padding: 14px 18px 10px; border-bottom: 3px solid #400000; }
+#course-banner h1 { font-size: 22px; font-weight: bold; letter-spacing: 0.01em; margin-bottom: 2px; }
+#course-banner .subtitle { font-size: 13px; color: #f5c0c0; font-style: italic; }
+#course-banner .meta { font-size: 12px; color: #fde; margin-top: 6px; }
+
+/* ===== TOP NAV ===== */
+#topnav { background: #c8a080; border-bottom: 2px solid #8b5e3c; padding: 0; display: flex; flex-wrap: wrap; align-items: center; }
+#topnav a { display: inline-block; padding: 5px 13px; font-size: 13px; font-family: Times New Roman, serif; color: #1a0a00; text-decoration: none; border-right: 1px solid #8b5e3c; font-weight: bold; }
+#topnav a:hover { background: #e0b890; color: #000; }
+#topnav a.active { background: #f5f3ee; color: #7b0000; border-bottom: 2px solid #f5f3ee; }
+
+#view-toggle { margin-left: auto; padding: 4px 10px; display: flex; align-items: center; gap: 6px; font-size: 12px; font-family: monospace; color: #222; border-left: 1px solid #8b5e3c; }
+#view-toggle select { font-size: 12px; font-family: monospace; border: 1px inset #888; background: #fff; padding: 1px 3px; }
+
+/* ===== LAYOUT ===== */
+#main-layout { display: flex; align-items: flex-start; max-width: 1100px; margin: 0 auto; }
+#sidebar { width: 185px; min-width: 185px; border-right: 1px solid #bbb; padding: 12px 10px; background: #edeae3; min-height: calc(100vh - 120px); }
+#sidebar h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: #7b0000; border-bottom: 1px solid #aaa; padding-bottom: 3px; margin: 12px 0 6px; font-family: Arial, Helvetica, sans-serif; }
+#sidebar h3:first-child { margin-top: 0; }
+#sidebar ul { list-style: none; padding: 0; }
+#sidebar ul li { font-size: 13px; padding: 2px 0; }
+#sidebar ul li a { text-decoration: none; }
+#sidebar ul li a:hover { text-decoration: underline; }
+#sidebar .staff-entry { font-size: 12px; margin-bottom: 8px; line-height: 1.4; }
+#sidebar .staff-entry strong { display: block; }
+#sidebar .office-hours { font-size: 11px; color: #444; font-style: italic; }
+
+#content { flex: 1; padding: 18px 22px; min-width: 0; }
+
+/* ===== SECTIONS ===== */
+.page-section { display: none; }
+.page-section.active { display: block; }
+
+/* ===== CONTENT ELEMENTS ===== */
+h2 { font-size: 17px; font-weight: bold; color: #7b0000; border-bottom: 1px solid #999; padding-bottom: 4px; margin: 0 0 12px; }
+h3 { font-size: 14px; font-weight: bold; margin: 14px 0 6px; color: #222; }
+p { margin-bottom: 8px; }
+ul, ol { margin: 6px 0 10px 24px; }
+li { margin-bottom: 3px; }
+hr { border: none; border-top: 1px solid #bbb; margin: 14px 0; }
+
+.announce-box { background: #fffbe8; border: 1px solid #d4b000; border-left: 4px solid #d4b000; padding: 8px 12px; margin-bottom: 12px; font-size: 13px; }
+.announce-box .date { font-size: 11px; color: #666; font-style: italic; }
+.announce-box strong { color: #5a3900; }
+
+/* ===== TABLES ===== */
+table.classic { border-collapse: collapse; width: 100%; font-size: 13px; margin-bottom: 14px; }
+table.classic th { background: #8b0000; color: #fff; padding: 5px 8px; text-align: left; font-family: Arial, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0.04em; border: 1px solid #600; }
+table.classic td { padding: 5px 8px; border: 1px solid #ccc; vertical-align: top; }
+table.classic tr:nth-child(even) td { background: #f0ede6; }
+table.classic tr:hover td { background: #e8ddd0; }
+table.classic tr.editing td { background: #fff8e8 !important; }
+
+.badge { display: inline-block; font-size: 10px; font-family: monospace; font-weight: bold; padding: 1px 5px; border: 1px solid; margin-left: 4px; vertical-align: middle; }
+.badge-pdf { color: #c00; border-color: #c00; }
+.badge-tex { color: #000080; border-color: #000080; }
+.badge-pptx { color: #c55200; border-color: #c55200; }
+.badge-new { color: #008000; border-color: #008000; }
+.badge-pending { color: #8b6000; border-color: #8b6000; }
+.badge-approved { color: #005000; border-color: #005000; }
+.badge-denied { color: #800; border-color: #800; }
+
+.section-block { margin-bottom: 22px; }
+
+/* ===== GRADES ===== */
+.grade-cell { text-align: center; font-family: monospace; font-size: 13px; }
+.grade-A { color: #004d00; font-weight: bold; }
+.grade-B { color: #003380; font-weight: bold; }
+.grade-C { color: #7a5000; }
+.grade-D { color: #8b0000; }
+.grade-F { color: #cc0000; font-weight: bold; }
+.grade-missing { color: #bbb; font-style: italic; }
+
+.gradebook-summary { font-family: monospace; font-size: 13px; background: #f9f7f0; border: 1px solid #ccc; padding: 10px 14px; margin-bottom: 16px; display: inline-block; }
+.gradebook-summary td { padding: 2px 12px 2px 0; }
+.gradebook-summary .label { color: #555; }
+
+.pbar-wrap { background: #ddd; border: 1px solid #aaa; height: 10px; display: inline-block; width: 80px; vertical-align: middle; }
+.pbar-fill { background: #8b0000; height: 100%; }
+
+/* ===== FORMS ===== */
+.form-section { background: #f9f7f0; border: 1px solid #bbb; padding: 14px 18px; margin-bottom: 18px; }
+.form-section h3 { margin-top: 0; color: #7b0000; font-size: 14px; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 10px; }
+.form-row { margin-bottom: 8px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.form-row label { font-size: 12px; font-family: Arial, Helvetica, sans-serif; min-width: 110px; color: #333; }
+.form-row input[type=text], .form-row input[type=date], .form-row input[type=file], .form-row input[type=number], .form-row select, .form-row textarea {
+  font-family: Times New Roman, serif; font-size: 13px; border: 1px inset #888; padding: 2px 5px; background: #fff; flex: 1; min-width: 160px;
+}
+.form-row textarea { height: 55px; resize: vertical; }
+
+.btn { font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: bold; padding: 4px 14px; background: linear-gradient(to bottom, #e0e0e0, #c8c8c8); border: 1px outset #888; cursor: pointer; color: #111; }
+.btn:hover { background: linear-gradient(to bottom, #d0d0d0, #b8b8b8); }
+.btn:active { border: 1px inset #888; background: #bbb; }
+.btn-danger { background: linear-gradient(to bottom, #e08080, #c04040); color: #fff; border-color: #800; }
+.btn-danger:hover { background: linear-gradient(to bottom, #c04040, #a03030); }
+.btn-primary { background: linear-gradient(to bottom, #6080d0, #3050a0); color: #fff; border-color: #234; }
+.btn-primary:hover { background: linear-gradient(to bottom, #5070c0, #2040a0); }
+.btn-warn { background: linear-gradient(to bottom, #d0a030, #a07820); color: #fff; border-color: #755010; }
+.btn-sm { font-size: 11px; padding: 2px 8px; }
+
+.instr-only { display: none; }
+body.instructor-view .instr-only { display: revert; }
+body.instructor-view .stud-only { display: none !important; }
+
+/* ===== INLINE EDIT ROW ===== */
+.edit-inline-row td { background: #fffbe8 !important; }
+.edit-inline-row input[type=text], .edit-inline-row input[type=date], .edit-inline-row input[type=number] {
+  font-family: Times New Roman, serif; font-size: 12px; border: 1px inset #888; padding: 1px 3px; background: #fff; width: 100%;
+}
+
+/* ===== QUIZ/TEST ===== */
+.quiz-block { border: 1px solid #bbb; background: #faf8f2; padding: 12px 16px; margin-bottom: 14px; }
+.quiz-block h4 { font-size: 13px; color: #7b0000; margin-bottom: 8px; }
+.quiz-q { margin-bottom: 10px; font-size: 13px; }
+.quiz-q .qtext { font-weight: bold; margin-bottom: 4px; }
+.quiz-q label { display: block; margin-left: 14px; font-size: 13px; cursor: pointer; }
+.quiz-q input[type=radio], .quiz-q input[type=checkbox] { margin-right: 5px; }
+.quiz-result { font-family: monospace; font-size: 13px; margin-top: 8px; }
+.quiz-result.pass { color: #005500; }
+.quiz-result.fail { color: #880000; }
+
+.answer-key-box { background: #f0ffe0; border: 1px solid #5a9050; border-left: 4px solid #5a9050; padding: 8px 12px; margin-top: 10px; font-size: 12px; font-family: monospace; }
+.answer-key-box h5 { color: #2a5020; font-size: 12px; margin-bottom: 6px; font-family: Arial; }
+
+/* ===== QUESTION BUILDER ===== */
+.qbuilder-item { border: 1px solid #ccc; background: #fff; padding: 10px 12px; margin-bottom: 8px; }
+.qbuilder-item .qb-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.qbuilder-item .qb-header span { font-size: 12px; font-weight: bold; color: #555; font-family: Arial; }
+.option-row { display: flex; gap: 6px; align-items: center; margin: 3px 0; }
+.option-row input[type=text] { font-family: serif; font-size: 12px; border: 1px inset #888; padding: 1px 4px; flex: 1; }
+.option-row input[type=radio] { margin: 0; }
+.option-row label { font-size: 11px; color: #555; white-space: nowrap; }
+
+/* ===== SCHEDULE ===== */
+.week-label { font-family: Arial, Helvetica, sans-serif; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; color: #555; background: #ddd8cc; padding: 3px 8px; border: 1px solid #ccc; }
+
+/* ===== USER MANAGEMENT ===== */
+.user-role-badge { display: inline-block; font-size: 10px; font-family: monospace; font-weight: bold; padding: 1px 6px; border: 1px solid; }
+.role-instructor { color: #7b0000; border-color: #7b0000; background: #fff0f0; }
+.role-student { color: #003380; border-color: #003380; background: #f0f0ff; }
+.role-pending { color: #7a5000; border-color: #7a5000; background: #fffbe8; }
+
+.status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
+.dot-active { background: #008000; }
+.dot-pending { background: #d4b000; }
+.dot-denied { background: #cc0000; }
+
+/* ===== FOOTER ===== */
+#footer { border-top: 2px solid #999; background: #edeae3; padding: 8px 18px; font-size: 11px; color: #555; font-style: italic; margin-top: 30px; }
+
+/* ===== MODAL ===== */
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; align-items: center; justify-content: center; }
+.modal-overlay.active { display: flex; }
+.modal-box { background: #fff; border: 2px solid #8b0000; width: 480px; max-height: 80vh; overflow-y: auto; }
+.modal-header { background: #8b0000; color: #fff; padding: 8px 14px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+.modal-header button { background: none; border: none; color: #fff; font-size: 16px; cursor: pointer; font-weight: bold; }
+.modal-body { padding: 16px 18px; }
+
+/* ===== TABS inside a section ===== */
+.subtabs { display: flex; gap: 0; margin-bottom: 14px; border-bottom: 2px solid #8b0000; }
+.subtabs button { font-family: Times New Roman, serif; font-size: 13px; padding: 4px 16px; background: #e8e4dc; border: 1px solid #bbb; border-bottom: none; cursor: pointer; color: #333; margin-right: 2px; }
+.subtabs button.active { background: #f5f3ee; color: #7b0000; font-weight: bold; border-color: #8b0000; border-bottom: 2px solid #f5f3ee; margin-bottom: -2px; }
+.subtab-content { display: none; }
+.subtab-content.active { display: block; }
+</style>
+</head>
+<body>
+
+<!-- ================================================================ -->
+<!-- SCREEN: LOGIN -->
+<!-- ================================================================ -->
+<div id="screen-login" class="active">
+  <div style="text-align:center; margin-bottom:18px;">
+    <div style="font-size:13px; color:#555; font-style:italic;">Hartwick University</div>
+    <div style="font-size:11px; color:#888;">Department of Computer Science</div>
+  </div>
+  <div class="login-box">
+    <div class="login-box-header">
+      CS 3140: Principles of Programming Languages
+      <span class="uni-small">Spring 2026 &mdash; Course Portal Login</span>
+    </div>
+    <div class="login-box-body">
+      <p>Sign in with your Hartwick University Google account to access the course portal. Only <code>@hartwick.edu</code> accounts are accepted.</p>
+      <button class="google-btn" onclick="doGoogleLogin()">
+        <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#EA4335" d="M24 9.5c3.14 0 5.95 1.08 8.17 2.85l6.1-6.1C34.46 3.04 29.54 1 24 1 14.84 1 7.08 6.48 3.6 14.18l7.1 5.51C12.46 13.36 17.76 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.5 24.5c0-1.64-.15-3.22-.42-4.74H24v9h12.7c-.55 2.96-2.2 5.46-4.68 7.14l7.18 5.57C43.13 37.3 46.5 31.37 46.5 24.5z"/>
+          <path fill="#FBBC05" d="M10.7 28.31A14.56 14.56 0 0 1 9.5 24c0-1.49.26-2.93.7-4.31l-7.1-5.51A23.9 23.9 0 0 0 .5 24c0 3.87.93 7.53 2.6 10.74l7.6-6.43z"/>
+          <path fill="#34A853" d="M24 46.5c5.54 0 10.19-1.84 13.59-4.99l-7.18-5.57C28.6 37.66 26.42 38.5 24 38.5c-6.24 0-11.54-3.86-13.3-9.19l-7.6 6.43C6.88 43.6 14.85 46.5 24 46.5z"/>
+        </svg>
+        Sign in with Google (@hartwick.edu)
+      </button>
+      <hr class="login-divider">
+      <p class="login-note">New student or instructor? After signing in, your account will be submitted for approval by the course instructor. You will receive an email when access is granted.</p>
+      <p class="login-link" style="margin-top:14px; font-size:12px; color:#555;">
+        Demo: &nbsp;
+        <a href="#" onclick="loginAs('student')">Sign in as Student</a> &nbsp;|&nbsp;
+        <a href="#" onclick="loginAs('instructor')">Sign in as Instructor</a> &nbsp;|&nbsp;
+        <a href="#" onclick="showScreen('signup')">New account (pending approval)</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- SCREEN: SIGNUP -->
+<!-- ================================================================ -->
+<div id="screen-signup">
+  <div class="login-box">
+    <div class="login-box-header">
+      Create Account &mdash; CS 3140
+      <span class="uni-small">Sign up with your Hartwick Google account</span>
+    </div>
+    <div class="login-box-body">
+      <button class="google-btn" onclick="doGoogleSignup()">
+        <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#EA4335" d="M24 9.5c3.14 0 5.95 1.08 8.17 2.85l6.1-6.1C34.46 3.04 29.54 1 24 1 14.84 1 7.08 6.48 3.6 14.18l7.1 5.51C12.46 13.36 17.76 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.5 24.5c0-1.64-.15-3.22-.42-4.74H24v9h12.7c-.55 2.96-2.2 5.46-4.68 7.14l7.18 5.57C43.13 37.3 46.5 31.37 46.5 24.5z"/>
+          <path fill="#FBBC05" d="M10.7 28.31A14.56 14.56 0 0 1 9.5 24c0-1.49.26-2.93.7-4.31l-7.1-5.51A23.9 23.9 0 0 0 .5 24c0 3.87.93 7.53 2.6 10.74l7.6-6.43z"/>
+          <path fill="#34A853" d="M24 46.5c5.54 0 10.19-1.84 13.59-4.99l-7.18-5.57C28.6 37.66 26.42 38.5 24 38.5c-6.24 0-11.54-3.86-13.3-9.19l-7.6 6.43C6.88 43.6 14.85 46.5 24 46.5z"/>
+        </svg>
+        Continue with Google (@hartwick.edu)
+      </button>
+      <hr class="login-divider">
+      <p class="login-note">Your account request will be sent to the course instructor for approval. Access is granted within 1–2 business days. You will be notified at your Hartwick email.</p>
+      <p class="login-link"><a href="#" onclick="showScreen('login')">&larr; Back to login</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- SCREEN: PENDING APPROVAL -->
+<!-- ================================================================ -->
+<div id="screen-pending">
+  <div class="pending-box">
+    <div class="pending-box-header">Account Pending Approval</div>
+    <div class="pending-box-body">
+      <p>Your account (<strong id="pending-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="38565d4f4d4b5d4a7850594a4c4f515b53165d5c4d">[email&#160;protected]</a></strong>) has been submitted and is awaiting instructor approval.</p>
+      <div class="warn">
+        <strong>&#9888; Access not yet granted.</strong><br>
+        You will receive an email at your Hartwick address once the instructor approves your enrollment. This typically takes 1–2 business days.
+      </div>
+      <p style="font-size:12px; color:#555;">If you believe this is an error, contact <a href="#"><span class="__cf_email__" data-cfemail="ef8a99809c9caf878e9d9b98868c84c18a8b9a">[email&#160;protected]</span></a>.</p>
+      <button class="btn" style="margin-top:10px;" onclick="showScreen('login')">Sign Out</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- MAIN APP -->
+<!-- ================================================================ -->
+<div id="screen-app" style="display:none;">
+
+<div id="uni-header">
+  <a href="#">Hartwick University</a> &raquo;
+  <a href="#">College of Engineering &amp; Computing</a> &raquo;
+  <a href="#">CS 3140 Spring 2026</a>
+  <span class="user-info">
+    Signed in as: <strong id="header-username">Jane Doe</strong>
+    &nbsp;<a href="#" onclick="doLogout()">[Sign Out]</a>
+  </span>
+</div>
+
+<div id="course-banner">
+  <h1>CS 3140: Principles of Programming Languages</h1>
+  <div class="subtitle">Hartwick University &mdash; Department of Computer Science &mdash; Spring 2026</div>
+  <div class="meta">MWF 10:00&ndash;10:50 AM &nbsp;|&nbsp; Keller Hall 101 &nbsp;|&nbsp; 3 Units &nbsp;|&nbsp; CRN: 28471</div>
+</div>
+
+<div id="topnav">
+  <a href="#" class="active" onclick="showPage('home',this);return false;">Home</a>
+  <a href="#" onclick="showPage('schedule',this);return false;">Schedule</a>
+  <a href="#" onclick="showPage('resources',this);return false;">Lectures &amp; Notes</a>
+  <a href="#" onclick="showPage('homework',this);return false;">Homework</a>
+  <a href="#" onclick="showPage('quizzes',this);return false;">Quizzes &amp; Exams</a>
+  <a href="#" onclick="showPage('gradebook',this);return false;">Gradebook</a>
+  <a href="#" class="instr-only" onclick="showPage('users',this);return false;" style="background:#fff0e0; color:#7b0000;">&#9654; Users</a>
+  <span id="view-toggle">
+    <label for="viewSel">View:</label>
+    <select id="viewSel" onchange="switchView(this.value)">
+      <option value="student">Student</option>
+      <option value="instructor">Instructor</option>
+    </select>
+  </span>
+</div>
+
+<div id="main-layout">
+  <div id="sidebar">
+    <h3>Staff</h3>
+    <div class="staff-entry">
+      <strong>Dr. Eleanor Voss</strong>
+      <span style="font-size:11px">Professor</span><br>
+      <a href="#"><span class="__cf_email__" data-cfemail="ed889b829e9ead858c9f999a848e86c3888998">[email&#160;protected]</span></a><br>
+      <span class="office-hours">OH: Mon/Wed 11–12<br>Gates 412</span>
+    </div>
+    <div class="staff-entry">
+      <strong>Marco Reyes</strong>
+      <span style="font-size:11px">Head TA</span><br>
+      <a href="#"><span class="__cf_email__" data-cfemail="69041b0c100c1a290a1a4701081b1d470c0d1c">[email&#160;protected]</span></a><br>
+      <span class="office-hours">OH: Tue 2–4, Thu 3–5<br>Gates 2B</span>
+    </div>
+    <div class="staff-entry">
+      <strong>Priya Shah</strong>
+      <span style="font-size:11px">TA</span><br>
+      <a href="#"><span class="__cf_email__" data-cfemail="38484b505950785b4b1650594a4c165d5c4d">[email&#160;protected]</span></a><br>
+      <span class="office-hours">OH: Mon 3–5, Fri 1–3<br>Gates 2B</span>
+    </div>
+    <h3>Quick Links</h3>
+    <ul>
+      <li><a href="#">Piazza Discussion Board</a></li>
+      <li><a href="#">Autolab (Submission)</a></li>
+      <li><a href="#">Zoom (Remote OH)</a></li>
+      <li><a href="#">Course Syllabus [PDF]</a></li>
+    </ul>
+    <h3>Upcoming</h3>
+    <ul style="font-size:12px;">
+      <li style="color:#7b0000;"><strong>HW4 Due</strong><br><span style="color:#333">Apr 30</span></li>
+      <li style="color:#7b0000; margin-top:4px;"><strong>Midterm 2</strong><br><span style="color:#333">May 6, in class</span></li>
+      <li style="margin-top:4px;">HW5 Due: May 14</li>
+    </ul>
+  </div><!-- end sidebar -->
+
+  <div id="content">
+
+    <!-- ============================================================ -->
+    <!-- PAGE: HOME -->
+    <!-- ============================================================ -->
+    <div id="page-home" class="page-section active">
+      <div class="section-block">
+        <h2>Course Overview</h2>
+        <p>An introduction to the theory, design, and implementation of programming languages. Topics include formal syntax and semantics, type systems and type inference, functional and imperative paradigms, lambda calculus, polymorphism, modules, and an introduction to language implementation techniques.</p>
+        <h3>Grading</h3>
+        <table class="classic" style="width:auto;">
+          <tr><th>Component</th><th>Weight</th></tr>
+          <tr><td>Homework Sets (10)</td><td>35%</td></tr>
+          <tr><td>Midterm 1</td><td>15%</td></tr>
+          <tr><td>Midterm 2</td><td>15%</td></tr>
+          <tr><td>Final Exam</td><td>25%</td></tr>
+          <tr><td>Quizzes</td><td>10%</td></tr>
+        </table>
+      </div>
+      <hr>
+      <div class="section-block">
+        <h2>Announcements</h2>
+        <div class="instr-only form-section" style="margin-bottom:16px;">
+          <h3>&#x2795; Post Announcement</h3>
+          <div class="form-row"><label>Title</label><input type="text" id="ann-title" placeholder="e.g. Office hours canceled Wed"></div>
+          <div class="form-row"><label>Body</label><textarea id="ann-body" placeholder="Announcement text..."></textarea></div>
+          <button class="btn btn-primary" onclick="postAnnouncement()">Post Announcement</button>
+        </div>
+        <div id="announcements-list">
+          <div class="announce-box">
+            <div class="date">April 25, 2026</div>
+            <strong>Midterm 2 study guide posted</strong>
+            <p>A study guide for Midterm 2 has been posted under Lectures &amp; Notes. Office hours will be extended the week before the exam.</p>
+            <span class="instr-only"><button class="btn btn-danger btn-sm" onclick="this.closest('.announce-box').remove()">Delete</button></span>
+          </div>
+          <div class="announce-box">
+            <div class="date">April 18, 2026</div>
+            <strong>HW4 clarification &mdash; Problem 3b</strong>
+            <p>For problem 3b, you may assume the language has no side effects. You do not need to handle the mutable reference case.</p>
+            <span class="instr-only"><button class="btn btn-danger btn-sm" onclick="this.closest('.announce-box').remove()">Delete</button></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- PAGE: SCHEDULE -->
+    <!-- ============================================================ -->
+    <div id="page-schedule" class="page-section">
+      <h2>Course Schedule</h2>
+      <div class="instr-only form-section" style="margin-bottom:16px;">
+        <h3>&#x2795; Add / Edit Schedule Entry</h3>
+        <div class="form-row">
+          <label>Date</label><input type="date" id="sched-date">
+          <label>Day</label>
+          <select id="sched-day" style="max-width:70px; min-width:70px; flex:none;"><option>Mon</option><option>Tue</option><option>Wed</option><option>Thu</option><option>Fri</option></select>
+          <label>Topic</label><input type="text" id="sched-topic" placeholder="e.g. §5.1 Lambda Calculus" style="flex:2;">
+        </div>
+        <div class="form-row">
+          <label>Type</label>
+          <select id="sched-type"><option>Lecture</option><option>No Class</option><option>Exam</option><option>HW Due</option></select>
+          <label>Links/Notes</label>
+          <input type="text" id="sched-notes" placeholder="e.g. [Slides] [Reading]">
+        </div>
+        <button class="btn btn-primary" onclick="addScheduleRow()">Add Entry</button>
+      </div>
+      <table class="classic" id="schedule-table">
+        <tr>
+          <th style="width:85px">Date</th><th style="width:50px">Day</th><th>Topic</th><th>Materials</th><th style="width:90px">Due</th>
+          <th class="instr-only" style="width:80px">Actions</th>
+        </tr>
+        <tr><td colspan="6" class="week-label">Week 1 &mdash; January 12</td></tr>
+        <tr data-sched="1">
+          <td>Jan 12</td><td>Mon</td><td>Introduction; course overview</td><td><a href="#">[Slides]</a> <a href="#">[Notes]</a></td><td></td>
+          <td class="instr-only"><a href="#" onclick="editSchedRow(this);return false;" style="font-size:11px">edit</a> &nbsp; <a href="#" onclick="delSchedRow(this);return false;" style="font-size:11px;color:#800">del</a></td>
+        </tr>
+        <tr data-sched="2">
+          <td>Jan 14</td><td>Wed</td><td>Syntax: grammars, BNF, parse trees</td><td><a href="#">[Slides]</a></td><td></td>
+          <td class="instr-only"><a href="#" onclick="editSchedRow(this);return false;" style="font-size:11px">edit</a> &nbsp; <a href="#" onclick="delSchedRow(this);return false;" style="font-size:11px;color:#800">del</a></td>
+        </tr>
+        <tr><td colspan="6" class="week-label">Week 8 &mdash; March 2</td></tr>
+        <tr data-sched="3">
+          <td>Mar 4</td><td>Wed</td><td><strong style="color:#7b0000;">&#9632; MIDTERM 1</strong> &mdash; covers Weeks 1&ndash;7</td><td><a href="#">[Practice Exam]</a></td><td></td>
+          <td class="instr-only"><a href="#" onclick="editSchedRow(this);return false;" style="font-size:11px">edit</a> &nbsp; <a href="#" onclick="delSchedRow(this);return false;" style="font-size:11px;color:#800">del</a></td>
+        </tr>
+        <tr><td colspan="6" class="week-label" style="background:#f5e8d0; color:#7b0000;">Week 15 &mdash; April 27 (Current)</td></tr>
+        <tr data-sched="4" style="background:#fdfaf3;">
+          <td><strong>Apr 27</strong></td><td>Mon</td><td>Parametric polymorphism; System F</td><td><a href="#">[Slides]</a></td><td></td>
+          <td class="instr-only"><a href="#" onclick="editSchedRow(this);return false;" style="font-size:11px">edit</a> &nbsp; <a href="#" onclick="delSchedRow(this);return false;" style="font-size:11px;color:#800">del</a></td>
+        </tr>
+        <tr data-sched="5" style="background:#fdfaf3;">
+          <td>May 1</td><td>Fri</td><td>Module systems; signatures</td><td><a href="#">[Notes]</a></td>
+          <td><span style="color:#00008b; font-size:12px; font-weight:bold;">HW4 Due</span></td>
+          <td class="instr-only"><a href="#" onclick="editSchedRow(this);return false;" style="font-size:11px">edit</a> &nbsp; <a href="#" onclick="delSchedRow(this);return false;" style="font-size:11px;color:#800">del</a></td>
+        </tr>
+        <tr><td colspan="6" class="week-label">Finals Period</td></tr>
+        <tr data-sched="6">
+          <td>May 15</td><td>Fri</td><td><strong style="color:#7b0000;">&#9632; FINAL EXAM</strong> &mdash; 8:30–11:30 AM, Keller 101</td><td><a href="#">[Final Info]</a></td><td></td>
+          <td class="instr-only"><a href="#" onclick="editSchedRow(this);return false;" style="font-size:11px">edit</a> &nbsp; <a href="#" onclick="delSchedRow(this);return false;" style="font-size:11px;color:#800">del</a></td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- PAGE: RESOURCES -->
+    <!-- ============================================================ -->
+    <div id="page-resources" class="page-section">
+      <h2>Lectures, Notes &amp; Resources</h2>
+      <div class="instr-only form-section">
+        <h3>&#x2795; Upload Resource</h3>
+        <div class="form-row"><label>Title</label><input type="text" id="res-title" placeholder="e.g. Lecture 15 Slides"></div>
+        <div class="form-row">
+          <label>Category</label>
+          <select id="res-cat"><option>Lecture Slides</option><option>Lecture Notes</option><option>Supplementary Reading</option><option>Exam Prep</option></select>
+          <label>Date</label><input type="date" id="res-date">
+        </div>
+        <div class="form-row"><label>Files</label><input type="file" id="res-file" multiple accept=".pdf,.pptx,.tex,.sml"></div>
+        <button class="btn btn-primary" onclick="addResource()">Upload</button>
+      </div>
+      <div class="section-block">
+        <h3 style="color:#7b0000; border-bottom:1px solid #bbb; padding-bottom:3px;">Lecture Slides</h3>
+        <table class="classic" id="slides-table">
+          <tr><th style="width:60px">Lec #</th><th style="width:75px">Date</th><th>Topic</th><th>Files</th><th class="instr-only" style="width:80px">Actions</th></tr>
+          <tr><td>Lec 1</td><td>Jan 12</td><td>Introduction</td><td><a href="#">lec01.pdf</a> <span class="badge badge-pdf">PDF</span> &nbsp; <a href="#">lec01.pptx</a> <span class="badge badge-pptx">PPTX</span></td>
+            <td class="instr-only"><a href="#" style="font-size:11px;color:#800" onclick="this.closest('tr').remove();return false;">delete</a></td></tr>
+          <tr><td>Lec 14</td><td>Apr 22</td><td>Type Inference; Hindley-Milner</td><td><a href="#">lec14.pdf</a> <span class="badge badge-pdf">PDF</span></td>
+            <td class="instr-only"><a href="#" style="font-size:11px;color:#800" onclick="this.closest('tr').remove();return false;">delete</a></td></tr>
+          <tr><td>Lec 15</td><td>Apr 27</td><td>Parametric Polymorphism; System F</td><td><a href="#">lec15.pdf</a> <span class="badge badge-pdf">PDF</span> <span class="badge badge-new">NEW</span></td>
+            <td class="instr-only"><a href="#" style="font-size:11px;color:#800" onclick="this.closest('tr').remove();return false;">delete</a></td></tr>
+        </table>
+      </div>
+      <div class="section-block">
+        <h3 style="color:#7b0000; border-bottom:1px solid #bbb; padding-bottom:3px;">Supplementary Notes &amp; Exam Prep</h3>
+        <table class="classic">
+          <tr><th>Title</th><th>Files</th><th class="instr-only" style="width:80px">Actions</th></tr>
+          <tr><td>Lambda Calculus Reference Sheet</td><td><a href="#">lambda-ref.pdf</a> <span class="badge badge-pdf">PDF</span></td>
+            <td class="instr-only"><a href="#" style="font-size:11px;color:#800" onclick="this.closest('tr').remove();return false;">delete</a></td></tr>
+          <tr><td>SML Primer</td><td><a href="#">sml-primer.pdf</a> <span class="badge badge-pdf">PDF</span></td>
+            <td class="instr-only"><a href="#" style="font-size:11px;color:#800" onclick="this.closest('tr').remove();return false;">delete</a></td></tr>
+          <tr><td>Midterm 2 Study Guide</td><td><a href="#">mt2-study.pdf</a> <span class="badge badge-pdf">PDF</span> <span class="badge badge-new">NEW</span></td>
+            <td class="instr-only"><a href="#" style="font-size:11px;color:#800" onclick="this.closest('tr').remove();return false;">delete</a></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- PAGE: HOMEWORK -->
+    <!-- ============================================================ -->
+    <div id="page-homework" class="page-section">
+      <h2>Homework Assignments</h2>
+      <p style="font-size:12px; color:#555; margin-bottom:12px;">Submit via <a href="#">Autolab</a>. Each assignment includes a PDF writeup and .tex source. You have <strong>5 late days</strong> total.</p>
+
+      <div class="instr-only form-section">
+        <h3>&#x2795; New Homework Assignment</h3>
+        <div class="form-row"><label>Name</label><input type="text" id="hw-name" placeholder="e.g. Homework 6"></div>
+        <div class="form-row">
+          <label>Due Date</label><input type="date" id="hw-due">
+          <label>Points</label><input type="number" id="hw-pts" value="100" style="max-width:70px; min-width:70px; flex:none;">
+        </div>
+        <div class="form-row"><label>Description</label><textarea id="hw-desc" placeholder="Topics, special instructions..."></textarea></div>
+        <div class="form-row"><label>PDF</label><input type="file" accept=".pdf"></div>
+        <div class="form-row"><label>.tex Source</label><input type="file" accept=".tex"></div>
+        <button class="btn btn-primary" onclick="addHomework()">Post Assignment</button>
+      </div>
+
+      <table class="classic" id="hw-table">
+        <tr>
+          <th style="width:65px">HW #</th><th>Topics</th><th>Files</th><th style="width:70px">Due</th><th style="width:55px">Pts</th>
+          <th class="stud-only" style="width:90px">Status</th>
+          <th class="stud-only" style="width:55px">Grade</th>
+          <th class="instr-only" style="width:120px">Actions</th>
+        </tr>
+        <tr id="hw-row-1">
+          <td><a href="#">HW 1</a></td>
+          <td>BNF grammars, parse trees, structural induction</td>
+          <td><a href="#">hw1.pdf</a> <span class="badge badge-pdf">PDF</span><br><a href="#">hw1.tex</a> <span class="badge badge-tex">TEX</span></td>
+          <td>Jan 23</td><td class="grade-cell">100</td>
+          <td class="stud-only"><span style="color:#005000; font-size:12px;">&#10003; Submitted</span></td>
+          <td class="stud-only grade-cell grade-A">97</td>
+          <td class="instr-only">
+            <a href="#" onclick="openEditHW('hw-row-1','HW 1','Jan 23','100');return false;" style="font-size:11px">edit</a> &nbsp;
+            <a href="#" onclick="deleteHW('hw-row-1');return false;" style="font-size:11px;color:#800">delete</a>
+          </td>
+        </tr>
+        <tr id="hw-row-2">
+          <td><a href="#">HW 2</a></td>
+          <td>Operational semantics, evaluation, progress/preservation</td>
+          <td><a href="#">hw2.pdf</a> <span class="badge badge-pdf">PDF</span><br><a href="#">hw2.tex</a> <span class="badge badge-tex">TEX</span></td>
+          <td>Feb 6</td><td class="grade-cell">100</td>
+          <td class="stud-only"><span style="color:#005000; font-size:12px;">&#10003; Submitted</span></td>
+          <td class="stud-only grade-cell grade-A">100</td>
+          <td class="instr-only">
+            <a href="#" onclick="openEditHW('hw-row-2','HW 2','Feb 6','100');return false;" style="font-size:11px">edit</a> &nbsp;
+            <a href="#" onclick="deleteHW('hw-row-2');return false;" style="font-size:11px;color:#800">delete</a>
+          </td>
+        </tr>
+        <tr id="hw-row-3">
+          <td><a href="#">HW 3</a></td>
+          <td>Simply typed lambda calculus, typing derivations</td>
+          <td><a href="#">hw3.pdf</a> <span class="badge badge-pdf">PDF</span><br><a href="#">hw3.tex</a> <span class="badge badge-tex">TEX</span></td>
+          <td>Mar 20</td><td class="grade-cell">100</td>
+          <td class="stud-only"><span style="color:#005000; font-size:12px;">&#10003; Submitted</span></td>
+          <td class="stud-only grade-cell grade-B">84</td>
+          <td class="instr-only">
+            <a href="#" onclick="openEditHW('hw-row-3','HW 3','Mar 20','100');return false;" style="font-size:11px">edit</a> &nbsp;
+            <a href="#" onclick="deleteHW('hw-row-3');return false;" style="font-size:11px;color:#800">delete</a>
+          </td>
+        </tr>
+        <tr id="hw-row-4">
+          <td><a href="#">HW 4</a></td>
+          <td>Type inference, Hindley-Milner, unification</td>
+          <td><a href="#">hw4.pdf</a> <span class="badge badge-pdf">PDF</span><br><a href="#">hw4.tex</a> <span class="badge badge-tex">TEX</span></td>
+          <td><strong style="color:#8b0000;">Apr 30</strong></td><td class="grade-cell">100</td>
+          <td class="stud-only"><span style="color:#bb0000; font-size:12px; font-weight:bold;">&#10007; Not Submitted</span></td>
+          <td class="stud-only grade-cell grade-missing">&mdash;</td>
+          <td class="instr-only">
+            <a href="#" onclick="openEditHW('hw-row-4','HW 4','Apr 30','100');return false;" style="font-size:11px">edit</a> &nbsp;
+            <a href="#" onclick="deleteHW('hw-row-4');return false;" style="font-size:11px;color:#800">delete</a>
+          </td>
+        </tr>
+      </table>
+
+      <!-- Inline HW Edit Panel -->
+      <div id="hw-edit-panel" style="display:none;" class="form-section instr-only">
+        <h3>&#x270E; Edit Assignment: <span id="hw-edit-name"></span></h3>
+        <div class="form-row"><label>Name</label><input type="text" id="hw-edit-namefield"></div>
+        <div class="form-row">
+          <label>Due Date</label><input type="text" id="hw-edit-due">
+          <label>Points</label><input type="number" id="hw-edit-pts" style="max-width:70px; min-width:70px; flex:none;">
+        </div>
+        <div class="form-row"><label>Description</label><textarea id="hw-edit-desc" placeholder="Update description..."></textarea></div>
+        <div class="form-row"><label>Replace PDF</label><input type="file" accept=".pdf"></div>
+        <div class="form-row"><label>Replace .tex</label><input type="file" accept=".tex"></div>
+        <button class="btn btn-primary" onclick="saveEditHW()">Save Changes</button>
+        <button class="btn" style="margin-left:8px;" onclick="closeEditHW()">Cancel</button>
+      </div>
+
+      <!-- Student submission -->
+      <div class="stud-only section-block" style="margin-top:18px;">
+        <h3>Submit Assignment</h3>
+        <div style="background:#f9f7f0; border:1px solid #bbb; padding:12px 16px;">
+          <div class="form-row">
+            <label>Assignment</label>
+            <select style="font-family:serif; font-size:13px; border:1px inset #888; padding:2px 5px;">
+              <option>HW 4 (due Apr 30)</option><option>HW 5 (due May 14)</option>
+            </select>
+          </div>
+          <div class="form-row"><label>Upload PDF</label><input type="file" accept=".pdf"></div>
+          <div class="form-row"><label>Upload .sml code</label><input type="file" accept=".sml,.ml"></div>
+          <div class="form-row">
+            <label>Use late day?</label>
+            <select style="font-family:serif; font-size:13px; border:1px inset #888; padding:2px 5px;"><option>No</option><option>Yes (3 days remaining)</option></select>
+          </div>
+          <button class="btn btn-primary" onclick="alert('Submission received! You will get a confirmation email.')">Submit to Autolab</button>
+          <span style="font-size:11px; color:#555; margin-left:10px;">Late days remaining: <strong>3</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- PAGE: QUIZZES & EXAMS -->
+    <!-- ============================================================ -->
+    <div id="page-quizzes" class="page-section">
+      <h2>Quizzes &amp; Exams</h2>
+
+      <div class="subtabs">
+        <button class="active" onclick="showSubtab('qt','list',this)">All Exams &amp; Quizzes</button>
+        <button onclick="showSubtab('qt','take',this)" class="stud-only">Take a Quiz</button>
+        <button onclick="showSubtab('qt','create',this)" class="instr-only">&#x2795; Create New</button>
+        <button onclick="showSubtab('qt','grades',this)" class="instr-only">Enter Grades</button>
+      </div>
+
+      <!-- LIST -->
+      <div id="qt-subtab-list" class="subtab-content active">
+        <table class="classic" id="quiz-table">
+          <tr>
+            <th>Name</th><th style="width:110px">Type</th><th style="width:110px">Date</th><th style="width:80px">Status</th>
+            <th class="stud-only" style="width:75px">My Score</th>
+            <th class="instr-only" style="width:75px">Avg</th>
+            <th style="width:110px">Key/Materials</th>
+            <th class="instr-only" style="width:110px">Actions</th>
+          </tr>
+          <tr id="qrow-q1">
+            <td>Quiz 1</td><td>In-Class Quiz</td><td>Jan 21</td>
+            <td><span style="color:#005000; font-size:12px;">Graded</span></td>
+            <td class="stud-only grade-cell grade-A">9/10</td>
+            <td class="instr-only grade-cell">8.2/10</td>
+            <td><a href="#" onclick="showKeyModal('Quiz 1',true,keysData['q1']);return false;">Answer Key &#x2714;</a></td>
+            <td class="instr-only">
+              <a href="#" onclick="openEditQuiz('qrow-q1','Quiz 1');return false;" style="font-size:11px">edit</a> &nbsp;
+              <a href="#" onclick="openKeyModal('q1','Quiz 1');return false;" style="font-size:11px">key</a> &nbsp;
+              <a href="#" onclick="deleteQuiz('qrow-q1');return false;" style="font-size:11px;color:#800">del</a>
+            </td>
+          </tr>
+          <tr id="qrow-q2">
+            <td>Quiz 2</td><td>In-Class Quiz</td><td>Feb 4</td>
+            <td><span style="color:#005000; font-size:12px;">Graded</span></td>
+            <td class="stud-only grade-cell grade-A">10/10</td>
+            <td class="instr-only grade-cell">7.8/10</td>
+            <td><a href="#" onclick="showKeyModal('Quiz 2',true,keysData['q2']);return false;">Answer Key &#x2714;</a></td>
+            <td class="instr-only">
+              <a href="#" onclick="openEditQuiz('qrow-q2','Quiz 2');return false;" style="font-size:11px">edit</a> &nbsp;
+              <a href="#" onclick="openKeyModal('q2','Quiz 2');return false;" style="font-size:11px">key</a> &nbsp;
+              <a href="#" onclick="deleteQuiz('qrow-q2');return false;" style="font-size:11px;color:#800">del</a>
+            </td>
+          </tr>
+          <tr id="qrow-mt1">
+            <td><strong>Midterm 1</strong></td><td>Midterm Exam</td><td>Mar 4, in class</td>
+            <td><span style="color:#005000; font-size:12px;">Graded</span></td>
+            <td class="stud-only grade-cell grade-B">81/100</td>
+            <td class="instr-only grade-cell">72.3/100</td>
+            <td><a href="#" onclick="showKeyModal('Midterm 1',true,keysData['mt1']);return false;">Answer Key &#x2714;</a></td>
+            <td class="instr-only">
+              <a href="#" onclick="openEditQuiz('qrow-mt1','Midterm 1');return false;" style="font-size:11px">edit</a> &nbsp;
+              <a href="#" onclick="openKeyModal('mt1','Midterm 1');return false;" style="font-size:11px">key</a> &nbsp;
+              <a href="#" onclick="deleteQuiz('qrow-mt1');return false;" style="font-size:11px;color:#800">del</a>
+            </td>
+          </tr>
+          <tr id="qrow-mt2" style="background:#fdfaf3;">
+            <td><strong>Midterm 2</strong></td><td>Midterm Exam</td><td><strong style="color:#7b0000;">May 6</strong></td>
+            <td><span style="color:#888; font-size:12px;">Upcoming</span></td>
+            <td class="stud-only grade-cell grade-missing">&mdash;</td>
+            <td class="instr-only grade-cell grade-missing">&mdash;</td>
+            <td><span style="color:#888; font-size:12px; font-style:italic;">Key not published</span></td>
+            <td class="instr-only">
+              <a href="#" onclick="openEditQuiz('qrow-mt2','Midterm 2');return false;" style="font-size:11px">edit</a> &nbsp;
+              <a href="#" onclick="openKeyModal('mt2','Midterm 2');return false;" style="font-size:11px">key</a> &nbsp;
+              <a href="#" onclick="deleteQuiz('qrow-mt2');return false;" style="font-size:11px;color:#800">del</a>
+            </td>
+          </tr>
+          <tr id="qrow-final" style="background:#fdfaf3;">
+            <td><strong>Final Exam</strong></td><td>Final Exam</td><td>May 15, 8:30–11:30 AM</td>
+            <td><span style="color:#888; font-size:12px;">Upcoming</span></td>
+            <td class="stud-only grade-cell grade-missing">&mdash;</td>
+            <td class="instr-only grade-cell grade-missing">&mdash;</td>
+            <td><span style="color:#888; font-size:12px; font-style:italic;">Key not published</span></td>
+            <td class="instr-only">
+              <a href="#" onclick="openEditQuiz('qrow-final','Final Exam');return false;" style="font-size:11px">edit</a> &nbsp;
+              <a href="#" onclick="openKeyModal('final','Final Exam');return false;" style="font-size:11px">key</a> &nbsp;
+              <a href="#" onclick="deleteQuiz('qrow-final');return false;" style="font-size:11px;color:#800">del</a>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- TAKE (student) -->
+      <div id="qt-subtab-take" class="subtab-content stud-only">
+        <p style="font-size:12px; color:#555; margin-bottom:12px;">Practice quizzes and any open online quizzes are available here.</p>
+        <div class="quiz-block">
+          <h4>Practice Quiz &mdash; Type Systems (Ungraded)</h4>
+          <div class="quiz-q">
+            <div class="qtext">1. Which is a valid typing rule in STLC?</div>
+            <label><input type="radio" name="pq1" value="a"> If &Gamma;&vdash;e:&tau;&rarr;&sigma; and &Gamma;&vdash;e':&tau;, then &Gamma;&vdash;ee':&sigma;</label>
+            <label><input type="radio" name="pq1" value="b"> &Gamma;&vdash;&lambda;x.e:&tau; for any &tau;</label>
+            <label><input type="radio" name="pq1" value="c"> &Gamma;&vdash;x:&tau; if x&notin;dom(&Gamma;)</label>
+          </div>
+          <div class="quiz-q">
+            <div class="qtext">2. Hindley-Milner terminates because:</div>
+            <label><input type="radio" name="pq2" value="a"> The language has no recursive types</label>
+            <label><input type="radio" name="pq2" value="b"> Unification terminates on finite terms (occurs check)</label>
+            <label><input type="radio" name="pq2" value="c"> All ML programs are finite in length</label>
+          </div>
+          <div class="quiz-q">
+            <div class="qtext">3. System F adds to STLC: (select all that apply)</div>
+            <label><input type="checkbox" id="pq3a"> Type abstraction (&Lambda;&alpha;.e)</label>
+            <label><input type="checkbox" id="pq3b"> Product types (&tau;&times;&sigma;)</label>
+            <label><input type="checkbox" id="pq3c"> Universal quantification (&forall;&alpha;.&tau;)</label>
+          </div>
+          <div style="margin-top:10px;">
+            <button class="btn" onclick="gradeQuiz()">Submit Quiz</button>
+          </div>
+          <div id="quiz-result" class="quiz-result" style="display:none;"></div>
+        </div>
+      </div>
+
+      <!-- CREATE (instructor) -->
+      <div id="qt-subtab-create" class="subtab-content instr-only">
+        <div class="form-section">
+          <h3>&#x2795; Create Quiz or Exam</h3>
+          <div class="form-row">
+            <label>Title</label><input type="text" id="qz-title" placeholder="e.g. Quiz 6 or Midterm 2">
+            <label>Type</label>
+            <select id="qz-type"><option>In-Class Quiz</option><option>Online Quiz</option><option>Midterm Exam</option><option>Final Exam</option></select>
+          </div>
+          <div class="form-row">
+            <label>Date</label><input type="date" id="qz-date">
+            <label>Time Limit</label><input type="text" id="qz-time" placeholder="e.g. 20 min" style="max-width:100px; min-width:80px; flex:none;">
+          </div>
+          <div class="form-row"><label>Instructions</label><textarea id="qz-notes" placeholder="Instructions shown to students..."></textarea></div>
+        </div>
+
+        <div class="form-section">
+          <h3>Questions &amp; Answer Key</h3>
+          <p style="font-size:12px; color:#555; margin-bottom:10px;">Add questions below. Mark the correct answer for each. The answer key is private until you publish it.</p>
+          <div id="qbuilder-list"></div>
+          <button class="btn" onclick="addQuestion()">+ Add Question</button>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn btn-primary" onclick="submitNewQuiz()">Create &amp; Save</button>
+          <button class="btn" onclick="submitNewQuiz(true)">Save as Draft</button>
+        </div>
+      </div>
+
+      <!-- GRADE ENTRY (instructor) -->
+      <div id="qt-subtab-grades" class="subtab-content instr-only">
+        <div class="form-section">
+          <h3>Enter or Import Quiz Grades</h3>
+          <div class="form-row">
+            <label>Quiz/Exam</label>
+            <select style="font-family:serif; font-size:13px; border:1px inset #888; padding:2px 5px;">
+              <option>Midterm 2 (May 6)</option><option>Quiz 6 (upcoming)</option><option>Final Exam (May 15)</option>
+            </select>
+          </div>
+          <div class="form-row"><label>Upload Grade CSV</label><input type="file" accept=".csv"></div>
+          <div class="form-row"><label style="min-width:0;"></label><span style="font-size:11px; color:#555;">CSV format: <code>andrew_id, score, max_score, comments</code></span></div>
+          <button class="btn btn-primary">Import Grades</button>
+          <span style="font-size:11px; color:#555; margin-left:10px;">or enter individual grades in Gradebook tab</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- PAGE: GRADEBOOK -->
+    <!-- ============================================================ -->
+    <div id="page-gradebook" class="page-section">
+
+      <!-- STUDENT VIEW -->
+      <div class="stud-only">
+        <h2>My Grades &mdash; Jane A. Doe (jdoe)</h2>
+        <table class="gradebook-summary">
+          <tr><td class="label">Current Overall Grade:</td><td style="font-weight:bold; color:#004d00; font-size:15px;">A&minus; &nbsp;(90.4%)</td></tr>
+          <tr><td class="label">Late Days Used:</td><td style="font-weight:bold;">2 / 5</td></tr>
+          <tr><td class="label">Last Updated:</td><td>Apr 27, 2026</td></tr>
+        </table>
+        <h3>Homework</h3>
+        <table class="classic">
+          <tr><th>Assignment</th><th>Score</th><th>Max</th><th>Pct</th></tr>
+          <tr><td>HW 1</td><td class="grade-cell grade-A">97</td><td class="grade-cell">100</td><td class="grade-cell">97%</td></tr>
+          <tr><td>HW 2</td><td class="grade-cell grade-A">100</td><td class="grade-cell">100</td><td class="grade-cell">100%</td></tr>
+          <tr><td>HW 3</td><td class="grade-cell grade-B">84</td><td class="grade-cell">100</td><td class="grade-cell">84%</td></tr>
+          <tr><td>HW 4</td><td class="grade-cell grade-missing">&mdash;</td><td class="grade-cell">100</td><td class="grade-cell grade-missing">pending</td></tr>
+        </table>
+        <h3>Exams &amp; Quizzes</h3>
+        <table class="classic">
+          <tr><th>Item</th><th>Score</th><th>Max</th><th>Pct</th></tr>
+          <tr><td>Quiz 1</td><td class="grade-cell grade-A">9</td><td class="grade-cell">10</td><td class="grade-cell">90%</td></tr>
+          <tr><td>Quiz 2</td><td class="grade-cell grade-A">10</td><td class="grade-cell">10</td><td class="grade-cell">100%</td></tr>
+          <tr><td>Midterm 1</td><td class="grade-cell grade-B">81</td><td class="grade-cell">100</td><td class="grade-cell">81%</td></tr>
+          <tr><td>Midterm 2</td><td class="grade-cell grade-missing">&mdash;</td><td class="grade-cell">100</td><td class="grade-cell grade-missing">upcoming</td></tr>
+        </table>
+      </div>
+
+      <!-- INSTRUCTOR VIEW -->
+      <div class="instr-only">
+        <h2>Gradebook &mdash; CS 3140 Spring 2026</h2>
+        <div style="display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap; margin-bottom:14px;">
+          <table class="gradebook-summary">
+            <tr><td class="label">Enrolled:</td><td style="font-weight:bold;">47</td></tr>
+            <tr><td class="label">Class Average:</td><td style="font-weight:bold;">84.2%</td></tr>
+            <tr><td class="label">Last updated:</td><td>Apr 27, 2026</td></tr>
+          </table>
+          <div>
+            <button class="btn" style="display:block;margin-bottom:5px;">&#x2193; Export CSV</button>
+            <button class="btn btn-primary" style="display:block;" onclick="alert('Grade sync sent to registrar.')">Sync to Registrar</button>
+          </div>
+        </div>
+
+        <div style="font-size:12px; color:#555; margin-bottom:8px; font-family:Arial;">
+          Filter: <input type="text" id="gb-filter" placeholder="name or id" style="font-size:12px; border:1px inset #888; padding:1px 5px; font-family:monospace;" oninput="filterGradebook(this.value)">
+          &nbsp; <span style="color:#666; font-size:11px;">Click <em>edit</em> on a row to change grades. Click column headers to sort.</span>
+        </div>
+
+        <div style="overflow-x:auto;">
+        <table class="classic" id="gradebook-table">
+          <tr>
+            <th onclick="sortGradebook()" style="cursor:pointer;">Student &#9660;</th>
+            <th style="width:70px">Andrew ID</th>
+            <th style="width:40px">HW1</th><th style="width:40px">HW2</th><th style="width:40px">HW3</th><th style="width:40px">HW4</th>
+            <th style="width:45px">MT1</th><th style="width:45px">MT2</th>
+            <th style="width:35px">Q1</th><th style="width:35px">Q2</th>
+            <th style="width:100px">Overall</th>
+            <th style="width:50px">Grade</th>
+            <th style="width:80px">Actions</th>
+          </tr>
+          <tr id="gb-row-jdoe" data-name="doe jane">
+            <td>Doe, Jane</td><td style="font-family:monospace;font-size:12px">jdoe</td>
+            <td class="grade-cell grade-A" data-col="hw1">97</td>
+            <td class="grade-cell grade-A" data-col="hw2">100</td>
+            <td class="grade-cell grade-B" data-col="hw3">84</td>
+            <td class="grade-cell grade-missing" data-col="hw4">&mdash;</td>
+            <td class="grade-cell grade-B" data-col="mt1">81</td>
+            <td class="grade-cell grade-missing" data-col="mt2">&mdash;</td>
+            <td class="grade-cell grade-A" data-col="q1">9</td>
+            <td class="grade-cell grade-A" data-col="q2">10</td>
+            <td class="grade-cell"><span class="pbar-wrap"><span class="pbar-fill" style="width:90%"></span></span> 90.4%</td>
+            <td class="grade-cell grade-A"><strong>A&minus;</strong></td>
+            <td>
+              <a href="#" onclick="startGBEdit('gb-row-jdoe');return false;" style="font-size:11px" id="gb-edit-jdoe">edit</a> &nbsp;
+              <a href="#" onclick="openGradeHistory('Doe, Jane');return false;" style="font-size:11px">log</a>
+            </td>
+          </tr>
+          <tr id="gb-row-asmith" data-name="smith alex">
+            <td>Smith, Alex</td><td style="font-family:monospace;font-size:12px">asmith</td>
+            <td class="grade-cell grade-A" data-col="hw1">95</td>
+            <td class="grade-cell grade-A" data-col="hw2">98</td>
+            <td class="grade-cell grade-A" data-col="hw3">92</td>
+            <td class="grade-cell grade-A" data-col="hw4">88</td>
+            <td class="grade-cell grade-A" data-col="mt1">91</td>
+            <td class="grade-cell grade-missing" data-col="mt2">&mdash;</td>
+            <td class="grade-cell grade-A" data-col="q1">10</td>
+            <td class="grade-cell grade-A" data-col="q2">9</td>
+            <td class="grade-cell"><span class="pbar-wrap"><span class="pbar-fill" style="width:93%"></span></span> 93.1%</td>
+            <td class="grade-cell grade-A"><strong>A</strong></td>
+            <td>
+              <a href="#" onclick="startGBEdit('gb-row-asmith');return false;" style="font-size:11px" id="gb-edit-asmith">edit</a> &nbsp;
+              <a href="#" onclick="openGradeHistory('Smith, Alex');return false;" style="font-size:11px">log</a>
+            </td>
+          </tr>
+          <tr id="gb-row-mlee" data-name="lee minjun">
+            <td>Lee, Minjun</td><td style="font-family:monospace;font-size:12px">mlee</td>
+            <td class="grade-cell grade-B" data-col="hw1">80</td>
+            <td class="grade-cell grade-B" data-col="hw2">85</td>
+            <td class="grade-cell grade-C" data-col="hw3">70</td>
+            <td class="grade-cell grade-C" data-col="hw4">72</td>
+            <td class="grade-cell grade-C" data-col="mt1">71</td>
+            <td class="grade-cell grade-missing" data-col="mt2">&mdash;</td>
+            <td class="grade-cell grade-B" data-col="q1">8</td>
+            <td class="grade-cell grade-C" data-col="q2">7</td>
+            <td class="grade-cell"><span class="pbar-wrap"><span class="pbar-fill" style="width:76%"></span></span> 76.2%</td>
+            <td class="grade-cell grade-C"><strong>C+</strong></td>
+            <td>
+              <a href="#" onclick="startGBEdit('gb-row-mlee');return false;" style="font-size:11px" id="gb-edit-mlee">edit</a> &nbsp;
+              <a href="#" onclick="openGradeHistory('Lee, Minjun');return false;" style="font-size:11px">log</a>
+            </td>
+          </tr>
+          <tr id="gb-row-rpatel" data-name="patel rahul">
+            <td>Patel, Rahul</td><td style="font-family:monospace;font-size:12px">rpatel</td>
+            <td class="grade-cell grade-C" data-col="hw1">72</td>
+            <td class="grade-cell grade-B" data-col="hw2">80</td>
+            <td class="grade-cell grade-D" data-col="hw3">63</td>
+            <td class="grade-cell grade-missing" data-col="hw4">&mdash;</td>
+            <td class="grade-cell grade-C" data-col="mt1">68</td>
+            <td class="grade-cell grade-missing" data-col="mt2">&mdash;</td>
+            <td class="grade-cell grade-C" data-col="q1">7</td>
+            <td class="grade-cell grade-C" data-col="q2">6</td>
+            <td class="grade-cell"><span class="pbar-wrap"><span class="pbar-fill" style="width:69%; background:#8b4040;"></span></span> 69.3%</td>
+            <td class="grade-cell grade-D"><strong>D+</strong></td>
+            <td>
+              <a href="#" onclick="startGBEdit('gb-row-rpatel');return false;" style="font-size:11px" id="gb-edit-rpatel">edit</a> &nbsp;
+              <a href="#" onclick="openGradeHistory('Patel, Rahul');return false;" style="font-size:11px">log</a>
+            </td>
+          </tr>
+        </table>
+        </div>
+        <p style="font-size:11px; color:#666; margin-top:4px; font-style:italic;">Showing 4 of 47 students.</p>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- PAGE: USER MANAGEMENT (instructor only) -->
+    <!-- ============================================================ -->
+    <div id="page-users" class="page-section">
+      <h2>User Management</h2>
+      <p style="font-size:12px; color:#555; margin-bottom:14px;">Manage student and instructor enrollment. Approve new account requests, add users manually, or change roles.</p>
+
+      <div class="subtabs">
+        <button class="active" onclick="showSubtab('um','pending',this)">Pending Approvals <span id="pending-count" style="background:#8b0000;color:#fff;font-size:10px;padding:1px 5px;font-family:monospace;margin-left:4px;">3</span></button>
+        <button onclick="showSubtab('um','all',this)">All Users</button>
+        <button onclick="showSubtab('um','add',this)">&#x2795; Add User</button>
+      </div>
+
+      <!-- PENDING APPROVALS -->
+      <div id="um-subtab-pending" class="subtab-content active">
+        <p style="font-size:12px; color:#555; margin-bottom:10px;">The following accounts have been created via Google sign-in and are awaiting your approval.</p>
+        <table class="classic" id="pending-table">
+          <tr>
+            <th>Name</th><th>Email (Google)</th><th style="width:90px">Requested Role</th>
+            <th style="width:90px">Signed Up</th><th style="width:140px">Actions</th>
+          </tr>
+          <tr id="pend-row-1">
+            <td>Kevin Okafor</td>
+            <td><a href="#"><span class="__cf_email__" data-cfemail="caa1a5a1abaca5b88aa2abb8bebda3a9a1e4afaebf">[email&#160;protected]</span></a></td>
+            <td><span class="user-role-badge role-student">Student</span></td>
+            <td style="font-size:12px;">Apr 26</td>
+            <td>
+              <button class="btn btn-primary btn-sm" onclick="approveUser('pend-row-1','Kevin Okafor','Student')">Approve</button>
+              <button class="btn btn-danger btn-sm" onclick="denyUser('pend-row-1')">Deny</button>
+            </td>
+          </tr>
+          <tr id="pend-row-2">
+            <td>Fatima Al-Amin</td>
+            <td><a href="#"><span class="__cf_email__" data-cfemail="fd9b9c919c909493bd959c8f898a949e96d3989988">[email&#160;protected]</span></a></td>
+            <td><span class="user-role-badge role-student">Student</span></td>
+            <td style="font-size:12px;">Apr 25</td>
+            <td>
+              <button class="btn btn-primary btn-sm" onclick="approveUser('pend-row-2','Fatima Al-Amin','Student')">Approve</button>
+              <button class="btn btn-danger btn-sm" onclick="denyUser('pend-row-2')">Deny</button>
+            </td>
+          </tr>
+          <tr id="pend-row-3">
+            <td>Dr. James Ruiz</td>
+            <td><a href="#"><span class="__cf_email__" data-cfemail="0e647c7b67744e666f7c7a79676d65206b6a7b">[email&#160;protected]</span></a></td>
+            <td><span class="user-role-badge role-instructor">Instructor</span></td>
+            <td style="font-size:12px;">Apr 24</td>
+            <td>
+              <button class="btn btn-primary btn-sm" onclick="approveUser('pend-row-3','Dr. James Ruiz','Instructor')">Approve</button>
+              <button class="btn btn-danger btn-sm" onclick="denyUser('pend-row-3')">Deny</button>
+            </td>
+          </tr>
+        </table>
+        <p id="no-pending-msg" style="display:none; font-size:13px; color:#555; font-style:italic;">No pending account requests.</p>
+      </div>
+
+      <!-- ALL USERS -->
+      <div id="um-subtab-all" class="subtab-content">
+        <div style="font-size:12px; color:#555; margin-bottom:8px; font-family:Arial;">
+          Filter: <input type="text" placeholder="name or email" style="font-size:12px; border:1px inset #888; padding:1px 5px; font-family:monospace;" oninput="filterUsers(this.value)">
+        </div>
+        <table class="classic" id="users-table">
+          <tr>
+            <th>Name</th><th>Andrew ID / Email</th><th style="width:100px">Role</th>
+            <th style="width:80px">Status</th><th style="width:130px">Actions</th>
+          </tr>
+          <tr data-uname="voss eleanor" id="ur-voss">
+            <td>Dr. Eleanor Voss</td>
+            <td style="font-family:monospace;font-size:12px">evoss &mdash; <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b6d3c0d9c5c5f6ded7c4c2c1dfd5dd98d3d2c3">[email&#160;protected]</a></td>
+            <td><span class="user-role-badge role-instructor">Instructor</span></td>
+            <td><span class="status-dot dot-active"></span>Active</td>
+            <td><span style="font-size:11px; color:#888;">(you)</span></td>
+          </tr>
+          <tr data-uname="reyes marco" id="ur-mreyes">
+            <td>Marco Reyes</td>
+            <td style="font-family:monospace;font-size:12px">mreyes &mdash; <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2c415e4955495f6c444d5e585b454f4702494859">[email&#160;protected]</a></td>
+            <td><span class="user-role-badge role-instructor">Instructor (TA)</span></td>
+            <td><span class="status-dot dot-active"></span>Active</td>
+            <td>
+              <a href="#" onclick="openEditUser('ur-mreyes','Marco Reyes','Instructor (TA)');return false;" style="font-size:11px">edit</a> &nbsp;
+              <a href="#" onclick="removeUser('ur-mreyes','Marco Reyes');return false;" style="font-size:11px;color:#800">remove</a>
+            </td>
+          </tr>
+          <tr data-uname="doe jane" id="ur-jdoe">
+            <td>Jane Doe</td>
+            <td style="font-family:monospace;font-size:12px">jdoe &mdash; <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d6bcb2b9b396beb7a4a2a1bfb5bdf8b3b2a3">[email&#160;protected]</a></td>
+            <td><span class="user-role-badge role-student">Student</span></td>
+            <td><span class="status-dot dot-active"></span>Active</td>
+            <td>
+              <a href="#" onclick="openEditUser('ur-jdoe','Jane Doe','Student');return false;" style="font-size:11px">edit</a> &nbsp;
+              <a href="#" onclick="removeUser('ur-jdoe','Jane Doe');return false;" style="font-size:11px;color:#800">remove</a>
+            </td>
+          </tr>
+          <tr data-uname="smith alex" id="ur-asmith">
+            <td>Alex Smith</td>
+            <td style="font-family:monospace;font-size:12px">asmith &mdash; <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2140524c48554961494053555648424a0f444554">[email&#160;protected]</a></td>
+            <td><span class="user-role-badge role-student">Student</span></td>
+            <td><span class="status-dot dot-active"></span>Active</td>
+            <td>
+              <a href="#" onclick="openEditUser('ur-asmith','Alex Smith','Student');return false;" style="font-size:11px">edit</a> &nbsp;
+              <a href="#" onclick="removeUser('ur-asmith','Alex Smith');return false;" style="font-size:11px;color:#800">remove</a>
+            </td>
+          </tr>
+          <tr data-uname="patel rahul" id="ur-rpatel">
+            <td>Rahul Patel</td>
+            <td style="font-family:monospace;font-size:12px">rpatel &mdash; <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1163617065747d51797063656678727a3f747564">[email&#160;protected]</a></td>
+            <td><span class="user-role-badge role-student">Student</span></td>
+            <td><span class="status-dot dot-active"></span>Active</td>
+            <td>
+              <a href="#" onclick="openEditUser('ur-rpatel','Rahul Patel','Student');return false;" style="font-size:11px">edit</a> &nbsp;
+              <a href="#" onclick="removeUser('ur-rpatel','Rahul Patel');return false;" style="font-size:11px;color:#800">remove</a>
+            </td>
+          </tr>
+        </table>
+        <p style="font-size:11px; color:#666; font-style:italic; margin-top:4px;">Showing 5 of 50 enrolled users.</p>
+      </div>
+
+      <!-- ADD USER -->
+      <div id="um-subtab-add" class="subtab-content">
+        <div class="form-section">
+          <h3>&#x2795; Add User Manually</h3>
+          <p style="font-size:12px; color:#555; margin-bottom:10px;">Users added here bypass the approval flow and are immediately enrolled.</p>
+          <div class="form-row"><label>Full Name</label><input type="text" id="add-user-name" placeholder="e.g. John Smith"></div>
+          <div class="form-row">
+            <label>Andrew ID</label><input type="text" id="add-user-id" placeholder="e.g. jsmith" style="max-width:140px; min-width:100px;">
+            <label>Email</label><input type="text" id="add-user-email" placeholder="jsmith@hartwick.edu">
+          </div>
+          <div class="form-row">
+            <label>Role</label>
+            <select id="add-user-role" style="min-width:160px; flex:none;">
+              <option>Student</option>
+              <option>Instructor (TA)</option>
+              <option>Instructor</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="addUserManually()">Add User</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end #content -->
+</div><!-- end #main-layout -->
+
+<div id="footer">
+  CS 3140 &mdash; Hartwick University &mdash; Spring 2026 &mdash; Last updated: April 27, 2026 &mdash;
+  Questions? Email <a href="#"><span class="__cf_email__" data-cfemail="b9dccfd6cacaf9d1d8cbcdced0dad297dcddcc">[email&#160;protected]</span></a> or post on <a href="#">Piazza</a>.
+</div>
+
+</div><!-- end #screen-app -->
+
+<!-- ================================================================ -->
+<!-- MODALS -->
+<!-- ================================================================ -->
+
+<!-- Answer Key Modal -->
+<div id="modal-key" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span id="modal-key-title">Answer Key</span>
+      <button onclick="closeModal('modal-key')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="modal-key-body"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Quiz Modal -->
+<div id="modal-edit-quiz" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span>Edit Exam/Quiz: <span id="meq-title"></span></span>
+      <button onclick="closeModal('modal-edit-quiz')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row"><label>Title</label><input type="text" id="meq-name"></div>
+      <div class="form-row"><label>Type</label>
+        <select id="meq-type"><option>In-Class Quiz</option><option>Online Quiz</option><option>Midterm Exam</option><option>Final Exam</option></select>
+      </div>
+      <div class="form-row"><label>Date</label><input type="text" id="meq-date"></div>
+      <div class="form-row"><label>Instructions</label><textarea id="meq-notes"></textarea></div>
+      <div style="margin-top:10px;">
+        <button class="btn btn-primary" onclick="saveEditQuiz()">Save</button>
+        <button class="btn" style="margin-left:8px;" onclick="closeModal('modal-edit-quiz')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit User Modal -->
+<div id="modal-edit-user" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span>Edit User: <span id="meu-name-label"></span></span>
+      <button onclick="closeModal('modal-edit-user')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row"><label>Full Name</label><input type="text" id="meu-name"></div>
+      <div class="form-row"><label>Role</label>
+        <select id="meu-role">
+          <option>Student</option>
+          <option>Instructor (TA)</option>
+          <option>Instructor</option>
+        </select>
+      </div>
+      <div class="form-row"><label>Status</label>
+        <select id="meu-status"><option>Active</option><option>Suspended</option></select>
+      </div>
+      <div style="margin-top:10px;">
+        <button class="btn btn-primary" onclick="saveEditUser()">Save Changes</button>
+        <button class="btn" style="margin-left:8px;" onclick="closeModal('modal-edit-user')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Grade History Modal -->
+<div id="modal-grade-history" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span>Grade Change Log: <span id="mgh-student"></span></span>
+      <button onclick="closeModal('modal-grade-history')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <table class="classic" style="font-size:12px;">
+        <tr><th>Date</th><th>Assignment</th><th>Old</th><th>New</th><th>Changed By</th></tr>
+        <tr><td>Apr 20</td><td>HW 3</td><td>79</td><td>84</td><td>evoss</td></tr>
+        <tr><td>Mar 10</td><td>Midterm 1</td><td>78</td><td>81</td><td>mreyes</td></tr>
+        <tr><td>Feb 8</td><td>HW 1</td><td>94</td><td>97</td><td>evoss</td></tr>
+      </table>
+      <button class="btn" style="margin-top:10px;" onclick="closeModal('modal-grade-history')">Close</button>
+    </div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ================================================================
+// DATA
+// ================================================================
+var keysData = {
+  q1: [{q:'What is the evaluation order in SML?',a:'Left-to-right, call-by-value'},{q:'Give the type of (fn x => x).',a:'\'a -> \'a'}],
+  q2: [{q:'Define big-step semantics.',a:'A relation e⇓v meaning e evaluates to value v in one conceptual step'},{q:'State Progress for STLC.',a:'If ⊢e:τ then either e is a value or ∃e\'. e→e\''}],
+  mt1: [{q:'Prove type soundness for STLC.',a:'By induction on typing derivations, using Progress + Preservation lemmas'},{q:'Define substitution [v/x]e.',a:'Replace free occurrences of x in e with v, renaming bound vars to avoid capture'}],
+  mt2: []
+};
+
+var currentEditingRow = null;
+var currentEditingQuizRow = null;
+var currentEditingUserRow = null;
+var questionCount = 0;
+
+// ================================================================
+// SCREENS
+// ================================================================
+function showScreen(name) {
+  ['login','signup','pending','app'].forEach(function(s) {
+    var el = document.getElementById('screen-' + s);
+    if (el) { el.style.display = 'none'; el.classList.remove('active'); }
+  });
+  var target = document.getElementById('screen-' + name);
+  if (!target) return;
+  if (name === 'app') { target.style.display = 'block'; }
+  else { target.style.display = 'flex'; target.classList.add('active'); }
+}
+
+function doGoogleLogin() {
+  // Simulate Google auth — in reality would use OAuth
+  loginAs('student');
+}
+
+function doGoogleSignup() {
+  document.getElementById('pending-email').textContent = 'newuser@hartwick.edu';
+  showScreen('pending');
+}
+
+function loginAs(role) {
+  if (role === 'instructor') {
+    document.getElementById('header-username').textContent = 'Dr. Eleanor Voss';
+    document.getElementById('viewSel').value = 'instructor';
+    switchView('instructor');
+  } else {
+    document.getElementById('header-username').textContent = 'Jane Doe';
+    document.getElementById('viewSel').value = 'student';
+    switchView('student');
+  }
+  showScreen('app');
+}
+
+function doLogout() {
+  showScreen('login');
+  // Reset view
+  switchView('student');
+  document.getElementById('viewSel').value = 'student';
+}
+
+// ================================================================
+// NAV
+// ================================================================
+function showPage(name, el) {
+  document.querySelectorAll('.page-section').forEach(function(s) { s.classList.remove('active'); });
+  var pg = document.getElementById('page-' + name);
+  if (pg) pg.classList.add('active');
+  document.querySelectorAll('#topnav a').forEach(function(a) { a.classList.remove('active'); });
+  if (el) el.classList.add('active');
+}
+
+function showSubtab(prefix, name, btn) {
+  var tabs = btn.closest('.subtabs');
+  tabs.querySelectorAll('button').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  // hide all subtab-content siblings (within same page-section)
+  var section = btn.closest('.page-section');
+  section.querySelectorAll('.subtab-content').forEach(function(c) { c.classList.remove('active'); });
+  var target = document.getElementById(prefix + '-subtab-' + name);
+  if (target) target.classList.add('active');
+}
+
+// ================================================================
+// VIEW TOGGLE
+// ================================================================
+function switchView(v) {
+  if (v === 'instructor') {
+    document.body.classList.add('instructor-view');
+  } else {
+    document.body.classList.remove('instructor-view');
+  }
+}
+
+// ================================================================
+// ANNOUNCEMENTS
+// ================================================================
+function postAnnouncement() {
+  var title = document.getElementById('ann-title').value.trim();
+  var body = document.getElementById('ann-body').value.trim();
+  if (!title) { alert('Please enter a title.'); return; }
+  var box = document.createElement('div');
+  box.className = 'announce-box';
+  var today = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  box.innerHTML = '<div class="date">' + today + '</div><strong>' + title + '</strong>' +
+    (body ? '<p>' + body + '</p>' : '') +
+    '<span class="instr-only"><button class="btn btn-danger btn-sm" onclick="this.closest(\'.announce-box\').remove()">Delete</button></span>';
+  var list = document.getElementById('announcements-list');
+  list.insertBefore(box, list.firstChild);
+  document.getElementById('ann-title').value = '';
+  document.getElementById('ann-body').value = '';
+}
+
+// ================================================================
+// SCHEDULE
+// ================================================================
+function addScheduleRow() {
+  var d = document.getElementById('sched-date').value;
+  var day = document.getElementById('sched-day').value;
+  var topic = document.getElementById('sched-topic').value.trim();
+  var type = document.getElementById('sched-type').value;
+  var notes = document.getElementById('sched-notes').value;
+  if (!topic) { alert('Enter a topic.'); return; }
+  var table = document.getElementById('schedule-table');
+  var tr = table.insertRow(-1);
+  var dateStr = d ? new Date(d + 'T12:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—';
+  var isExam = type === 'Exam';
+  var rowId = 'sr-' + Date.now();
+  tr.setAttribute('data-sched', rowId);
+  tr.innerHTML =
+    '<td>' + dateStr + '</td><td>' + day + '</td>' +
+    '<td' + (isExam ? ' style="color:#7b0000;font-weight:bold;"' : '') + '>' +
+      (type !== 'Lecture' ? '[' + type + '] ' : '') + topic +
+    '</td>' +
+    '<td>' + (notes ? '<a href="#">' + notes + '</a>' : '') + '</td>' +
+    '<td>' + (type === 'HW Due' ? '<span style="color:#00008b;font-size:12px;font-weight:bold;">Due</span>' : '') + '</td>' +
+    '<td class="instr-only">' +
+      '<a href="#" onclick="editSchedRow(this);return false;" style="font-size:11px">edit</a> &nbsp; ' +
+      '<a href="#" onclick="delSchedRow(this);return false;" style="font-size:11px;color:#800">del</a>' +
+    '</td>';
+  document.getElementById('sched-topic').value = '';
+  document.getElementById('sched-notes').value = '';
+}
+
+function editSchedRow(link) {
+  var tr = link.closest('tr');
+  var cells = tr.querySelectorAll('td');
+  var dateVal = cells[0].textContent;
+  var topicVal = cells[2].textContent;
+  // Insert edit row after
+  var editRow = document.createElement('tr');
+  editRow.className = 'edit-inline-row';
+  editRow.innerHTML =
+    '<td colspan="5">' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;padding:4px 0;">' +
+        '<label style="font-size:11px;font-family:Arial;">Date <input type="text" value="' + dateVal + '" style="width:70px;font-size:12px;border:1px inset #888;padding:1px 3px;"></label>' +
+        '<label style="font-size:11px;font-family:Arial;flex:1;">Topic <input type="text" value="' + topicVal + '" style="width:100%;font-size:12px;border:1px inset #888;padding:1px 3px;"></label>' +
+      '</div>' +
+      '<button class="btn btn-primary btn-sm" style="margin-top:4px;" onclick="saveSchedEdit(this)">Save</button> ' +
+      '<button class="btn btn-sm" style="margin-top:4px;" onclick="this.closest(\'.edit-inline-row\').remove()">Cancel</button>' +
+    '</td>' +
+    '<td class="instr-only"></td>';
+  tr.parentNode.insertBefore(editRow, tr.nextSibling);
+}
+
+function saveSchedEdit(btn) {
+  var editRow = btn.closest('.edit-inline-row');
+  var inputs = editRow.querySelectorAll('input');
+  var prevRow = editRow.previousSibling;
+  if (prevRow && prevRow.tagName === 'TR') {
+    prevRow.querySelectorAll('td')[0].textContent = inputs[0].value;
+    prevRow.querySelectorAll('td')[2].textContent = inputs[1].value;
+  }
+  editRow.remove();
+}
+
+function delSchedRow(link) {
+  if (confirm('Delete this schedule entry?')) link.closest('tr').remove();
+}
+
+// ================================================================
+// RESOURCES
+// ================================================================
+function addResource() {
+  var title = document.getElementById('res-title').value.trim();
+  var cat = document.getElementById('res-cat').value;
+  if (!title) { alert('Enter a title.'); return; }
+  var table = document.getElementById('slides-table');
+  var tr = table.insertRow(-1);
+  tr.innerHTML =
+    '<td>—</td><td>New</td><td>' + title + '</td>' +
+    '<td><a href="#">' + title.toLowerCase().replace(/\s/g,'-') + '.pdf</a> <span class="badge badge-pdf">PDF</span> <span class="badge badge-new">NEW</span></td>' +
+    '<td class="instr-only"><a href="#" style="font-size:11px;color:#800" onclick="this.closest(\'tr\').remove();return false;">delete</a></td>';
+  document.getElementById('res-title').value = '';
+}
+
+// ================================================================
+// HOMEWORK
+// ================================================================
+var editingHWRowId = null;
+
+function addHomework() {
+  var name = document.getElementById('hw-name').value.trim();
+  var due = document.getElementById('hw-due').value;
+  var pts = document.getElementById('hw-pts').value || '100';
+  var desc = document.getElementById('hw-desc').value;
+  if (!name) { alert('Enter assignment name.'); return; }
+  var dueStr = due ? new Date(due+'T12:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : 'TBD';
+  var rowId = 'hw-row-' + Date.now();
+  var table = document.getElementById('hw-table');
+  var tr = table.insertRow(-1);
+  tr.id = rowId;
+  var slug = name.toLowerCase().replace(/\s/g,'');
+  tr.innerHTML =
+    '<td><a href="#">' + name + '</a></td>' +
+    '<td>' + (desc || '&mdash;') + '</td>' +
+    '<td><a href="#">' + slug + '.pdf</a> <span class="badge badge-pdf">PDF</span> <span class="badge badge-new">NEW</span><br>' +
+        '<a href="#">' + slug + '.tex</a> <span class="badge badge-tex">TEX</span></td>' +
+    '<td><strong>' + dueStr + '</strong></td><td class="grade-cell">' + pts + '</td>' +
+    '<td class="stud-only"><span style="color:#888;font-size:12px;">Not Yet Open</span></td>' +
+    '<td class="stud-only grade-cell grade-missing">&mdash;</td>' +
+    '<td class="instr-only">' +
+      '<a href="#" onclick="openEditHW(\'' + rowId + '\',\'' + name + '\',\'' + dueStr + '\',\'' + pts + '\');return false;" style="font-size:11px">edit</a> &nbsp;' +
+      '<a href="#" onclick="deleteHW(\'' + rowId + '\');return false;" style="font-size:11px;color:#800">delete</a>' +
+    '</td>';
+  document.getElementById('hw-name').value = '';
+  document.getElementById('hw-due').value = '';
+  document.getElementById('hw-desc').value = '';
+  document.getElementById('hw-pts').value = '100';
+}
+
+function openEditHW(rowId, name, due, pts) {
+  editingHWRowId = rowId;
+  document.getElementById('hw-edit-name').textContent = name;
+  document.getElementById('hw-edit-namefield').value = name;
+  document.getElementById('hw-edit-due').value = due;
+  document.getElementById('hw-edit-pts').value = pts;
+  document.getElementById('hw-edit-desc').value = '';
+  document.getElementById('hw-edit-panel').style.display = 'block';
+  document.getElementById('hw-edit-panel').scrollIntoView && window.scrollBy(0, 200);
+}
+
+function saveEditHW() {
+  if (!editingHWRowId) return;
+  var row = document.getElementById(editingHWRowId);
+  if (row) {
+    var cells = row.querySelectorAll('td');
+    cells[0].innerHTML = '<a href="#">' + document.getElementById('hw-edit-namefield').value + '</a>';
+    cells[3].innerHTML = '<strong>' + document.getElementById('hw-edit-due').value + '</strong>';
+    cells[4].textContent = document.getElementById('hw-edit-pts').value;
+    // Update edit link name too
+    var editLink = cells[cells.length-1].querySelector('a');
+    if (editLink) editLink.setAttribute('onclick', 'openEditHW(\'' + editingHWRowId + '\',\'' +
+      document.getElementById('hw-edit-namefield').value + '\',\'' +
+      document.getElementById('hw-edit-due').value + '\',\'' +
+      document.getElementById('hw-edit-pts').value + '\');return false;');
+  }
+  closeEditHW();
+}
+
+function closeEditHW() {
+  editingHWRowId = null;
+  document.getElementById('hw-edit-panel').style.display = 'none';
+}
+
+function deleteHW(rowId) {
+  if (confirm('Delete this assignment? This cannot be undone.')) {
+    var row = document.getElementById(rowId);
+    if (row) row.remove();
+  }
+}
+
+// ================================================================
+// QUIZZES
+// ================================================================
+function addQuestion() {
+  questionCount++;
+  var n = questionCount;
+  var div = document.createElement('div');
+  div.className = 'qbuilder-item';
+  div.id = 'qb-' + n;
+  div.innerHTML =
+    '<div class="qb-header">' +
+      '<span>Question ' + n + '</span>' +
+      '<select style="font-size:11px;font-family:Arial;border:1px inset #888;padding:1px 3px;">' +
+        '<option>Multiple Choice</option><option>Short Answer</option><option>True/False</option>' +
+      '</select>' +
+      '<button class="btn btn-danger btn-sm" onclick="this.closest(\'.qbuilder-item\').remove()">Remove</button>' +
+    '</div>' +
+    '<div class="form-row"><label style="min-width:60px;">Question</label>' +
+      '<input type="text" placeholder="Enter question text..." style="flex:1;"></div>' +
+    '<div style="margin-top:6px; font-size:11px; font-family:Arial; color:#555; margin-bottom:4px;">Options (mark correct answer with radio button):</div>' +
+    '<div class="option-row"><input type="radio" name="key-' + n + '" value="a"><label>A.</label><input type="text" placeholder="Option A"></div>' +
+    '<div class="option-row"><input type="radio" name="key-' + n + '" value="b"><label>B.</label><input type="text" placeholder="Option B"></div>' +
+    '<div class="option-row"><input type="radio" name="key-' + n + '" value="c"><label>C.</label><input type="text" placeholder="Option C"></div>' +
+    '<div class="option-row"><input type="radio" name="key-' + n + '" value="d"><label>D.</label><input type="text" placeholder="Option D"></div>';
+  document.getElementById('qbuilder-list').appendChild(div);
+}
+
+function submitNewQuiz(draft) {
+  var title = document.getElementById('qz-title').value.trim();
+  if (!title) { alert('Enter a title.'); return; }
+  var table = document.getElementById('quiz-table');
+  var rowId = 'qrow-' + Date.now();
+  var tr = table.insertRow(-1);
+  tr.id = rowId;
+  var dateVal = document.getElementById('qz-date').value;
+  var dateStr = dateVal ? new Date(dateVal+'T12:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : 'TBD';
+  var type = document.getElementById('qz-type').value;
+  tr.innerHTML =
+    '<td><strong>' + title + '</strong></td>' +
+    '<td>' + type + '</td>' +
+    '<td>' + dateStr + '</td>' +
+    '<td><span style="color:' + (draft?'#8b6000':'#888') + ';font-size:12px;">' + (draft?'Draft':'Upcoming') + '</span></td>' +
+    '<td class="stud-only grade-cell grade-missing">&mdash;</td>' +
+    '<td class="instr-only grade-cell grade-missing">&mdash;</td>' +
+    '<td><span style="color:#888;font-size:12px;font-style:italic;">Key not published</span></td>' +
+    '<td class="instr-only">' +
+      '<a href="#" onclick="openEditQuiz(\'' + rowId + '\',\'' + title + '\');return false;" style="font-size:11px">edit</a> &nbsp;' +
+      '<a href="#" onclick="openKeyModal(\'new-' + rowId + '\',\'' + title + '\');return false;" style="font-size:11px">key</a> &nbsp;' +
+      '<a href="#" onclick="deleteQuiz(\'' + rowId + '\');return false;" style="font-size:11px;color:#800">del</a>' +
+    '</td>';
+  document.getElementById('qz-title').value = '';
+  document.getElementById('qz-date').value = '';
+  document.getElementById('qbuilder-list').innerHTML = '';
+  questionCount = 0;
+  alert('Quiz "' + title + '" ' + (draft?'saved as draft.':'created.'));
+}
+
+function deleteQuiz(rowId) {
+  if (confirm('Delete this quiz/exam entry?')) {
+    var row = document.getElementById(rowId);
+    if (row) row.remove();
+  }
+}
+
+function openEditQuiz(rowId, title) {
+  currentEditingQuizRow = rowId;
+  document.getElementById('meq-title').textContent = title;
+  document.getElementById('meq-name').value = title;
+  var row = document.getElementById(rowId);
+  if (row) {
+    document.getElementById('meq-date').value = row.querySelectorAll('td')[2].textContent;
+  }
+  document.getElementById('modal-edit-quiz').classList.add('active');
+}
+
+function saveEditQuiz() {
+  if (!currentEditingQuizRow) return;
+  var row = document.getElementById(currentEditingQuizRow);
+  if (row) {
+    row.querySelectorAll('td')[0].innerHTML = '<strong>' + document.getElementById('meq-name').value + '</strong>';
+    row.querySelectorAll('td')[1].textContent = document.getElementById('meq-type').value;
+    row.querySelectorAll('td')[2].textContent = document.getElementById('meq-date').value;
+  }
+  closeModal('modal-edit-quiz');
+}
+
+// ================================================================
+// ANSWER KEY
+// ================================================================
+function openKeyModal(keyId, title) {
+  var keyItems = keysData[keyId] || [];
+  var published = keyItems.length > 0;
+  var html = '<p style="font-size:12px; color:#555; margin-bottom:10px;">Manage the answer key for <strong>' + title + '</strong>. Published keys are visible to students after grades are released.</p>';
+  html += '<div style="margin-bottom:12px;">';
+  html += '<label style="font-size:13px; font-family:Arial;"><input type="checkbox" id="key-pub-toggle" ' + (published ? 'checked' : '') + ' style="margin-right:6px;"> <strong>Publish answer key to students</strong></label>';
+  html += '</div>';
+  if (keyItems.length > 0) {
+    html += '<div class="answer-key-box"><h5>Current Key:</h5>';
+    keyItems.forEach(function(item, i) {
+      html += '<div style="margin-bottom:6px;"><strong>Q' + (i+1) + '.</strong> ' + item.q + '<br>&nbsp;&nbsp;&rarr; <em>' + item.a + '</em></div>';
+    });
+    html += '</div>';
+  } else {
+    html += '<p style="font-size:12px; color:#888; font-style:italic;">No key entries yet. Add them below.</p>';
+  }
+  html += '<hr style="margin:12px 0;">';
+  html += '<div style="font-size:13px; font-family:Arial; font-weight:bold; margin-bottom:6px;">Add/Edit Key Entry</div>';
+  html += '<div class="form-row"><label>Question</label><input type="text" id="key-q" placeholder="Question text or number"></div>';
+  html += '<div class="form-row"><label>Answer</label><input type="text" id="key-a" placeholder="Correct answer / explanation"></div>';
+  html += '<button class="btn btn-primary btn-sm" onclick="addKeyEntry(\'' + keyId + '\')">Add Entry</button>';
+  html += '<div style="margin-top:12px;">';
+  html += '<button class="btn btn-warn" onclick="saveKeySettings(\'' + keyId + '\',\'' + title + '\')">Save Key Settings</button>';
+  html += ' <button class="btn" style="margin-left:8px;" onclick="closeModal(\'modal-key\')">Close</button>';
+  html += '</div>';
+  document.getElementById('modal-key-title').textContent = 'Answer Key &mdash; ' + title;
+  document.getElementById('modal-key-body').innerHTML = html;
+  document.getElementById('modal-key').classList.add('active');
+}
+
+function addKeyEntry(keyId) {
+  var q = document.getElementById('key-q').value.trim();
+  var a = document.getElementById('key-a').value.trim();
+  if (!q || !a) { alert('Enter both question and answer.'); return; }
+  if (!keysData[keyId]) keysData[keyId] = [];
+  keysData[keyId].push({q:q, a:a});
+  document.getElementById('key-q').value = '';
+  document.getElementById('key-a').value = '';
+  alert('Entry added. Save settings to apply.');
+}
+
+function saveKeySettings(keyId, title) {
+  var pub = document.getElementById('key-pub-toggle').checked;
+  // Update the table row's key cell
+  // Find row where key col mentions this quiz
+  var rows = document.getElementById('quiz-table').querySelectorAll('tr');
+  rows.forEach(function(tr) {
+    var cells = tr.querySelectorAll('td');
+    if (cells.length > 0 && cells[0].textContent.trim() === title) {
+      var keyCell = cells[6];
+      if (pub && keysData[keyId] && keysData[keyId].length > 0) {
+        keyCell.innerHTML = '<a href="#" onclick="showKeyModal(\'' + title + '\',true,keysData[\'' + keyId + '\']);return false;">Answer Key &#x2714;</a>';
+      } else {
+        keyCell.innerHTML = '<span style="color:#888; font-size:12px; font-style:italic;">Key not published</span>';
+      }
+    }
+  });
+  closeModal('modal-key');
+  alert('Key settings saved' + (pub ? ' and published.' : '. Key is private.'));
+}
+
+function showKeyModal(title, published, items) {
+  var html = '<h4 style="color:#2a5020; margin-bottom:8px;">' + title + ' &mdash; Answer Key</h4>';
+  if (!published || !items || items.length === 0) {
+    html += '<p style="color:#888; font-style:italic;">Answer key not yet published.</p>';
+  } else {
+    html += '<div class="answer-key-box"><h5>Answer Key</h5>';
+    items.forEach(function(item, i) {
+      html += '<div style="margin-bottom:6px;"><strong>Q' + (i+1) + '.</strong> ' + item.q + '<br>&nbsp;&nbsp;&rarr; <em>' + item.a + '</em></div>';
+    });
+    html += '</div>';
+  }
+  html += '<button class="btn" style="margin-top:10px;" onclick="closeModal(\'modal-key\')">Close</button>';
+  document.getElementById('modal-key-title').textContent = title + ' &mdash; Answer Key';
+  document.getElementById('modal-key-body').innerHTML = html;
+  document.getElementById('modal-key').classList.add('active');
+}
+
+// ================================================================
+// GRADEBOOK EDITING
+// ================================================================
+var gbEditActive = null;
+
+function startGBEdit(rowId) {
+  // Cancel any prior edit
+  if (gbEditActive && gbEditActive !== rowId) cancelGBEdit(gbEditActive);
+  gbEditActive = rowId;
+  var row = document.getElementById(rowId);
+  if (!row) return;
+  // Make grade cells editable (exclude name, id, overall, letter, actions)
+  var gradeCols = row.querySelectorAll('td[data-col]');
+  gradeCols.forEach(function(td) {
+    var cur = td.textContent.trim();
+    if (cur === '—') cur = '';
+    td.innerHTML = '<input type="number" min="0" max="100" value="' + cur + '" style="width:36px;font-size:12px;border:1px inset #888;padding:1px 2px;font-family:monospace;">';
+  });
+  row.classList.add('editing');
+  // Change edit link to save/cancel
+  var actCell = row.querySelector('td:last-child');
+  actCell.innerHTML =
+    '<a href="#" onclick="saveGBEdit(\'' + rowId + '\');return false;" style="font-size:11px;color:#004d00;font-weight:bold;">save</a> &nbsp;' +
+    '<a href="#" onclick="cancelGBEdit(\'' + rowId + '\');return false;" style="font-size:11px;color:#800">cancel</a> &nbsp;' +
+    '<a href="#" onclick="clearGBRow(\'' + rowId + '\');return false;" style="font-size:11px;color:#555">clear all</a>';
+}
+
+function saveGBEdit(rowId) {
+  var row = document.getElementById(rowId);
+  if (!row) return;
+  var gradeCols = row.querySelectorAll('td[data-col]');
+  var scores = [];
+  gradeCols.forEach(function(td) {
+    var inp = td.querySelector('input');
+    var val = inp ? inp.value.trim() : '';
+    var num = val === '' ? NaN : parseInt(val);
+    td.className = 'grade-cell';
+    if (isNaN(num)) {
+      td.innerHTML = '<span class="grade-missing">&mdash;</span>';
+    } else {
+      var cls = num >= 90 ? 'grade-A' : num >= 80 ? 'grade-B' : num >= 70 ? 'grade-C' : num >= 60 ? 'grade-D' : 'grade-F';
+      td.classList.add(cls);
+      td.textContent = num;
+      scores.push(num);
+    }
+  });
+  // Recalc overall (rough avg)
+  if (scores.length > 0) {
+    var avg = Math.round(scores.reduce(function(a,b){return a+b;},0) / scores.length);
+    var overall = row.querySelectorAll('td')[10];
+    if (overall) {
+      var pct = avg;
+      overall.innerHTML = '<span class="pbar-wrap"><span class="pbar-fill" style="width:' + pct + '%;"></span></span> ' + pct + '%';
+    }
+    var letter = row.querySelectorAll('td')[11];
+    if (letter) {
+      var ltr = avg >= 93?'A': avg >= 90?'A−': avg >= 87?'B+': avg >= 83?'B': avg >= 80?'B−': avg >= 77?'C+': avg >= 70?'C': avg >= 60?'D':'F';
+      var lcls = avg >= 80?'grade-A': avg >= 70?'grade-B': avg >= 60?'grade-C':'grade-D';
+      letter.className = 'grade-cell ' + lcls;
+      letter.innerHTML = '<strong>' + ltr + '</strong>';
+    }
+  }
+  row.classList.remove('editing');
+  var actCell = row.querySelector('td:last-child');
+  actCell.innerHTML =
+    '<a href="#" onclick="startGBEdit(\'' + rowId + '\');return false;" style="font-size:11px">edit</a> &nbsp;' +
+    '<a href="#" onclick="openGradeHistory(\'—\');return false;" style="font-size:11px">log</a>';
+  gbEditActive = null;
+}
+
+function cancelGBEdit(rowId) {
+  location.reload(); // simplest way to revert — in a real app we'd restore from data
+}
+
+function clearGBRow(rowId) {
+  if (!confirm('Clear all grades for this student?')) return;
+  var row = document.getElementById(rowId);
+  if (!row) return;
+  row.querySelectorAll('td[data-col]').forEach(function(td) {
+    td.querySelector('input').value = '';
+  });
+}
+
+function filterGradebook(val) {
+  var v = val.toLowerCase();
+  document.querySelectorAll('#gradebook-table tr[data-name]').forEach(function(tr) {
+    tr.style.display = tr.getAttribute('data-name').includes(v) ? '' : 'none';
+  });
+}
+
+function sortGradebook() {
+  var table = document.getElementById('gradebook-table');
+  var rows = Array.from(table.querySelectorAll('tr[data-name]'));
+  rows.sort(function(a,b){ return a.getAttribute('data-name').localeCompare(b.getAttribute('data-name')); });
+  rows.forEach(function(r){ table.appendChild(r); });
+}
+
+function openGradeHistory(name) {
+  document.getElementById('mgh-student').textContent = name;
+  document.getElementById('modal-grade-history').classList.add('active');
+}
+
+// ================================================================
+// USER MANAGEMENT
+// ================================================================
+function approveUser(rowId, name, role) {
+  var row = document.getElementById(rowId);
+  if (row) row.remove();
+  // Add to all-users table
+  var table = document.getElementById('users-table');
+  var tr = table.insertRow(-1);
+  var id = name.split(' ').map(function(w){return w[0];}).join('').toLowerCase() + Math.floor(Math.random()*100);
+  var roleClass = role === 'Student' ? 'role-student' : 'role-instructor';
+  tr.setAttribute('data-uname', name.toLowerCase());
+  tr.id = 'ur-' + id;
+  tr.innerHTML =
+    '<td>' + name + '</td>' +
+    '<td style="font-family:monospace;font-size:12px">' + id + ' &mdash; ' + id + '@hartwick.edu</td>' +
+    '<td><span class="user-role-badge ' + roleClass + '">' + role + '</span></td>' +
+    '<td><span class="status-dot dot-active"></span>Active</td>' +
+    '<td>' +
+      '<a href="#" onclick="openEditUser(\'ur-' + id + '\',\'' + name + '\',\'' + role + '\');return false;" style="font-size:11px">edit</a> &nbsp;' +
+      '<a href="#" onclick="removeUser(\'ur-' + id + '\',\'' + name + '\');return false;" style="font-size:11px;color:#800">remove</a>' +
+    '</td>';
+  // Update pending count
+  var count = document.querySelectorAll('#pending-table tr[id^="pend-row-"]').length - 1;
+  var countEl = document.getElementById('pending-count');
+  var remaining = document.querySelectorAll('#pending-table tr[id]').length - 1;
+  if (remaining <= 0) {
+    document.getElementById('no-pending-msg').style.display = '';
+    if (countEl) countEl.textContent = '0';
+  } else {
+    if (countEl) countEl.textContent = remaining;
+  }
+  alert(name + ' approved as ' + role + '. They will receive an email notification.');
+}
+
+function denyUser(rowId) {
+  if (!confirm('Deny this account request? The user will be notified.')) return;
+  var row = document.getElementById(rowId);
+  if (row) row.remove();
+  var remaining = document.querySelectorAll('#pending-table tr[id]').length - 1;
+  var countEl = document.getElementById('pending-count');
+  if (remaining <= 0) { document.getElementById('no-pending-msg').style.display = ''; }
+  if (countEl) countEl.textContent = Math.max(0, remaining).toString();
+}
+
+function openEditUser(rowId, name, role) {
+  currentEditingUserRow = rowId;
+  document.getElementById('meu-name-label').textContent = name;
+  document.getElementById('meu-name').value = name;
+  document.getElementById('meu-role').value = role;
+  document.getElementById('modal-edit-user').classList.add('active');
+}
+
+function saveEditUser() {
+  if (!currentEditingUserRow) return;
+  var row = document.getElementById(currentEditingUserRow);
+  if (row) {
+    var newName = document.getElementById('meu-name').value;
+    var newRole = document.getElementById('meu-role').value;
+    var cells = row.querySelectorAll('td');
+    cells[0].textContent = newName;
+    var roleClass = newRole === 'Student' ? 'role-student' : 'role-instructor';
+    cells[2].innerHTML = '<span class="user-role-badge ' + roleClass + '">' + newRole + '</span>';
+    row.setAttribute('data-uname', newName.toLowerCase());
+  }
+  closeModal('modal-edit-user');
+}
+
+function removeUser(rowId, name) {
+  if (!confirm('Remove ' + name + ' from this course? Their grades will be retained.')) return;
+  var row = document.getElementById(rowId);
+  if (row) row.remove();
+}
+
+function addUserManually() {
+  var name = document.getElementById('add-user-name').value.trim();
+  var id = document.getElementById('add-user-id').value.trim();
+  var email = document.getElementById('add-user-email').value.trim();
+  var role = document.getElementById('add-user-role').value;
+  if (!name || !id) { alert('Enter name and Andrew ID.'); return; }
+  var table = document.getElementById('users-table');
+  var tr = table.insertRow(-1);
+  var rowId = 'ur-' + id;
+  var roleClass = role === 'Student' ? 'role-student' : 'role-instructor';
+  tr.id = rowId;
+  tr.setAttribute('data-uname', name.toLowerCase());
+  tr.innerHTML =
+    '<td>' + name + '</td>' +
+    '<td style="font-family:monospace;font-size:12px">' + id + ' &mdash; ' + (email || id + '@hartwick.edu') + '</td>' +
+    '<td><span class="user-role-badge ' + roleClass + '">' + role + '</span></td>' +
+    '<td><span class="status-dot dot-active"></span>Active</td>' +
+    '<td>' +
+      '<a href="#" onclick="openEditUser(\'' + rowId + '\',\'' + name + '\',\'' + role + '\');return false;" style="font-size:11px">edit</a> &nbsp;' +
+      '<a href="#" onclick="removeUser(\'' + rowId + '\',\'' + name + '\');return false;" style="font-size:11px;color:#800">remove</a>' +
+    '</td>';
+  document.getElementById('add-user-name').value = '';
+  document.getElementById('add-user-id').value = '';
+  document.getElementById('add-user-email').value = '';
+  // Switch to all tab
+  document.querySelector('.subtabs button:nth-child(2)').click();
+}
+
+function filterUsers(val) {
+  var v = val.toLowerCase();
+  document.querySelectorAll('#users-table tr[data-uname]').forEach(function(tr) {
+    tr.style.display = tr.getAttribute('data-uname').includes(v) ? '' : 'none';
+  });
+}
+
+// ================================================================
+// QUIZ PRACTICE
+// ================================================================
+function gradeQuiz() {
+  var q1 = document.querySelector('input[name="pq1"]:checked');
+  var q2 = document.querySelector('input[name="pq2"]:checked');
+  var q3a = document.getElementById('pq3a').checked;
+  var q3b = document.getElementById('pq3b').checked;
+  var q3c = document.getElementById('pq3c').checked;
+  var score = 0;
+  if (q1 && q1.value === 'a') score++;
+  if (q2 && q2.value === 'b') score++;
+  if (q3a && q3c && !q3b) score++;
+  var el = document.getElementById('quiz-result');
+  el.style.display = 'block';
+  el.className = 'quiz-result ' + (score === 3 ? 'pass' : 'fail');
+  el.textContent = 'Score: ' + score + '/3 — ' + (score === 3 ? 'Excellent! All correct.' : 'Review the lecture notes on STLC and System F.');
+}
+
+// ================================================================
+// MODALS
+// ================================================================
+function closeModal(id) {
+  document.getElementById(id).classList.remove('active');
+}
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(function(el) {
+  el.addEventListener('click', function(e) {
+    if (e.target === el) el.classList.remove('active');
+  });
+});
+</script>
+</body>
+</html>
