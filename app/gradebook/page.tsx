@@ -221,7 +221,7 @@ export default function GradebookPage() {
     // Instructor View
     return (
         <div id="page-gradebook" className="page-section active">
-            <h2>Gradebook — CS XXXX Fall 2027</h2>
+            <h2>Gradebook — Intro to Machine Learning</h2>
             <div style={{ display: "flex", gap: "14px", alignItems: "flex-start", flexWrap: "wrap", marginBottom: "14px" }}>
                 <table className="gradebook-summary">
                     <tbody>

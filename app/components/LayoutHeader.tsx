@@ -24,7 +24,7 @@ export default function LayoutHeader({
         <>
             <div id="uni-header">
                 <a href="#">CSW</a> »
-                <a href="#">Introduction to Machine Learning - Fall 2027</a>
+                <a href="#">Introduction to Machine Learning - 2026-2027</a>
                 <span className="user-info">
                     {user.role === "auditor" ? (
                         <>Signed in as <strong id="header-username">Auditor</strong></>
@@ -39,12 +39,12 @@ export default function LayoutHeader({
             </div>
 
             <div id="course-banner">
-                <h1>CS XXXX: Introduction to Machine Learning</h1>
+                <h1>Introduction to Machine Learning</h1>
                 <div className="subtitle">
-                    CSW — Department of Computer Science — Fall 2027
+                    Charter School of Wilmington 2026-2027
                 </div>
                 <div className="meta">
-                    Period X &nbsp;|&nbsp; Room XXX &nbsp;
+                    Activity Periods A and F &nbsp;|&nbsp; Room 306b &nbsp;
                 </div>
             </div>
 

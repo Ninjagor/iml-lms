@@ -67,8 +67,8 @@ export default function LoginPage() {
             </div>
             <div className="login-box">
                 <div className="login-box-header">
-                    CS XXXX: Introduction to Machine Learning
-                    <span className="uni-small">Fall 2027 — Course Portal Login</span>
+                    Introduction to Machine Learning
+                    <span className="uni-small">Course Portal Login</span>
                 </div>
                 <div className="login-box-body">
                     <form onSubmit={handleLogin}>
@@ -115,7 +115,7 @@ export default function LoginPage() {
                             {isLoading ? "Signing in..." : "Sign In"}
                         </button>
                     </form>
-                    
+
                     <div style={{ marginTop: "10px" }}>
                         <button
                             onClick={async () => {
@@ -135,12 +135,13 @@ export default function LoginPage() {
                             }}
                             className="btn"
                             disabled={isLoading}
-                            style={{ width: "100%", cursor: isLoading ? "not-allowed" : "pointer", backgroundColor: "#f8f8f8", color: "#333", border: "1px solid #ccc",
+                            style={{
+                                width: "100%", cursor: isLoading ? "not-allowed" : "pointer", backgroundColor: "#f8f8f8", color: "#333", border: "1px solid #ccc",
                                 padding: "8px 0px"
 
 
                             }}
-                            
+
                         >
                             View as Auditor (Read Only)
                         </button>
